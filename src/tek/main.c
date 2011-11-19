@@ -59,6 +59,8 @@ int main(int argc, char **argv)
 	    continue;
 	}
 
+	/* If the processor exists, then use it to process the file. */
+
 	talloc_unlink(context_search, proc);
 	talloc_unlink(context_pop, filename);
     }
