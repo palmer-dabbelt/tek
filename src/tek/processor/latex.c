@@ -20,11 +20,11 @@ struct processor *processor_latex_search(void *context, const char *filename)
     p = NULL;
 
     if (string_ends_with(filename, ".tex"))
-	p = talloc(context, struct processor_latex);
+        p = talloc(context, struct processor_latex);
 
     if (p != NULL)
     {
-	p->p.name = talloc_reference(p, p_name);
+        p->p.name = talloc_reference(p, p_name);
     }
 
     return (struct processor *)p;

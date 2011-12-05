@@ -5,6 +5,7 @@
 
 extern void processors_boot(void *context);
 
-extern struct processor *processors_search(void *context, const char *filename);
+extern struct processor *processors_search(void *context,
+                                           const char *filename);
 
 #endif

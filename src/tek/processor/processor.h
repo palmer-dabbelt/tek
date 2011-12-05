@@ -7,11 +7,11 @@
 struct processor
 {
     char *name;
-    void (*process)(struct processor *, char *,
-		    struct stack *, struct makefile *);
+    void (*process) (struct processor *, char *,
+                     struct stack *, struct makefile *);
 };
 
 extern void processor_process(struct processor *p, char *filename,
-			      struct stack *s, struct makefile *mf);
+                              struct stack *s, struct makefile *mf);
 
 #endif

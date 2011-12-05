@@ -1,4 +1,4 @@
--bad
+-nbad
 -bap
 -bbb
 -nbc

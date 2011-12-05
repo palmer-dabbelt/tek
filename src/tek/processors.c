@@ -14,7 +14,7 @@ struct processor *processors_search(void *context, const char *filename)
 
     p = processor_latex_search(context, filename);
     if (p != NULL)
-	return p;
+        return p;
 
     return NULL;
 }

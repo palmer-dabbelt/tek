@@ -36,7 +36,7 @@ char *stack_pop(struct stack *s, void *parent)
     assert(s != NULL);
 
     if (s->head == NULL)
-	return NULL;
+        return NULL;
 
     out = talloc_reparent(s->head, parent, s->head->filename);
     old = s->head;

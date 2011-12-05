@@ -11,7 +11,6 @@ struct processor_latex
 extern void processor_latex_boot(void *context);
 
 extern struct processor *processor_latex_search(void *context,
-						const char *filename);
+                                                const char *filename);
 
 #endif
-

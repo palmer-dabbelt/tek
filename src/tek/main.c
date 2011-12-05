@@ -45,24 +45,24 @@ int main(int argc, char **argv)
     /* Keeps parsing files until there aren't any files left. */
     while ((filename = stack_pop(s, context_pop)) != NULL)
     {
-	struct processor *proc;
+        struct processor *proc;
 
-	fprintf(stderr, "Processing '%s'\n", filename);
+        fprintf(stderr, "Processing '%s'\n", filename);
 
-	/* Checks that a processor actually exists for this file type */
-	proc = processors_search(context_search, filename);
-	if (proc == NULL)
-	{
-	    fprintf(stderr, "No processor for '%s'\n", filename);
-	    talloc_unlink(context_pop, filename);
-	    exitvalue = 1;
-	    continue;
-	}
+        /* Checks that a processor actually exists for this file type */
+        proc = processors_search(context_search, filename);
+        if (proc == NULL)
+        {
+            fprintf(stderr, "No processor for '%s'\n", filename);
+            talloc_unlink(context_pop, filename);
+            exitvalue = 1;
+            continue;
+        }
 
-	/* If the processor exists, then use it to process the file. */
+        /* If the processor exists, then use it to process the file. */
 
-	talloc_unlink(context_search, proc);
-	talloc_unlink(context_pop, filename);
+        talloc_unlink(context_search, proc);
+        talloc_unlink(context_pop, filename);
     }
 
     /* Cleanup code, this is checked by talloc automatically on program
