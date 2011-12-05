@@ -19,4 +19,38 @@
  * along with tek.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "processor.h"
+#include "makefile.h"
+#include <talloc.h>
+
+static int mf_destructor(struct makefile *m);
+
+struct makefile *makefile_new(struct clopts *o)
+{
+    struct makefile *m;
+
+    m = talloc(o, struct makefile);
+    talloc_set_destructor(m, &mf_destructor);
+    m->file = fopen("Makefile", "w");
+    m->targets_all = stringlist_new(m);
+    m->build_list  = stringlist_new(m);
+
+    fprintf(m->file, "SHELL=/bin/bash\n");
+    fprintf(m->file, ".PHONY: all tek__all clean\n");
+    fprintf(m->file, ".SUFFIXES:\n");
+    fprintf(m->file, "all: tek__all\n");
+    fprintf(m->file, "\n");
+
+    return m;
+}
+
+
+
+int mf_destructor(struct makefile *m)
+{
+    fprintf(m->file, "#Closed\n");
+
+    fclose(m->file);
+
+    return 0;
+}
+

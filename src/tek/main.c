@@ -1,3 +1,24 @@
+
+/*
+ * Copyright (C) 2011 Daniel Dabbelt
+ *   <palmem@comcast.net>
+ *
+ * This file is part of tek.
+ * 
+ * tek is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * tek is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with tek.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <talloc.h>
@@ -6,11 +27,13 @@
 #include "clopts.h"
 #include "stack.h"
 #include "processors.h"
+#include "makefile.h"
 
 int main(int argc, char **argv)
 {
     struct clopts *o;
     struct stack *s;
+    struct makefile *m;
     char *filename;
     void *context_argstrdup;
     void *context_search;
@@ -28,6 +51,7 @@ int main(int argc, char **argv)
     o = clopts_new(argc, argv);
     s = stack_new(o);
     processors_boot(o);
+    m = makefile_new(o);
 
     /* Contexts to keep track of any potentially allocated memory in some
      * helper functions.  Hopefully all of these will eventually go away. */
@@ -47,7 +71,9 @@ int main(int argc, char **argv)
     {
         struct processor *proc;
 
+#ifdef DEBUG
         fprintf(stderr, "Processing '%s'\n", filename);
+#endif
 
         /* Checks that a processor actually exists for this file type */
         proc = processors_search(context_search, filename);
@@ -60,7 +86,9 @@ int main(int argc, char **argv)
         }
 
         /* If the processor exists, then use it to process the file. */
+	proc->process(proc, filename, s, m);
 
+	/* Cleans up everything we just allocated */
         talloc_unlink(context_search, proc);
         talloc_unlink(context_pop, filename);
     }

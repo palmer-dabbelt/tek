@@ -19,4 +19,34 @@
  * along with tek.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "processor.h"
+#ifndef STRING_LIST_H
+#define STRING_LIST_H
+
+#include "error.h"
+#include <stdio.h>
+#include <stdbool.h>
+
+struct stringlist_node
+{
+    struct stringlist_node *next;
+    const char *data;
+};
+
+struct stringlist
+{
+    struct stringlist_node *head;
+};
+
+/* Allocates a new stringlist, passed the parent context */
+extern struct stringlist *stringlist_new(void *context);
+
+/* Adds an entry to the given stringlist */
+extern void stringlist_add(struct stringlist *l, const char *to_add);
+
+/* Removes a string from the given list */
+extern void stringlist_del(struct stringlist *l, const char *to_del);
+
+/* Checks if the given string is in the given string list */
+extern bool stringlist_include(struct stringlist *l, const char *s);
+
+#endif
