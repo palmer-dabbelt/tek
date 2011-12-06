@@ -122,6 +122,8 @@ void process(struct processor *p_uncast, const char *filename_input,
     char *filename;
     char *phonydeps;
 
+    phonydeps = NULL;
+
     /* We need access to the real structure, get it safely */
     p = talloc_get_type(p_uncast, struct processor_latex);
 
