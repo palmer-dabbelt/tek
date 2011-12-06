@@ -49,7 +49,7 @@ struct processor *processor_gnuplot_search(void *context,
 
     p = NULL;
 
-    if (string_ends_with(filename, ".gnuplot"))
+    if (string_ends_with(filename, ".gnuplot.pdf"))
         p = talloc(context, struct processor_gnuplot);
 
     if (p != NULL)
@@ -104,11 +104,11 @@ void process(struct processor *p_uncast, const char *filename,
              struct stack *s, struct makefile *m)
 {
     void *c;
-    int cache_dir_size;
-    char *cache_dir;
-    char *pp_file;
-    char *pdf_file;
     struct processor_gnuplot *p;
+    int cachedir_index;
+    char *cachedir;
+    char *infile;
+    char *pp_file;
     FILE *inf;
     char *buf;
     int buf_size;
@@ -121,45 +121,43 @@ void process(struct processor *p_uncast, const char *filename,
     /* Makes a new context */
     c = talloc_new(p);
 
-    /* The cache dir */
-    cache_dir_size = basename_len(filename) + strlen(CACHE_DIR) + 2;
-    cache_dir = talloc_array(c, char, cache_dir_size);
-    cache_dir[0] = '\0';
-    if (basename_len(filename) != 0)
+    /* Finds the original filename */
+    cachedir_index = string_index(filename, ".tek_cache/");
+    if (cachedir_index == -1)
     {
-        strncat(cache_dir, filename, basename_len(filename));
-        strcat(cache_dir, "/");
+        fprintf(stderr, "Bad cachedir for image\n");
+        return;
     }
-    strcat(cache_dir, CACHE_DIR);
 
-    /* The preprocessed file */
-    pp_file = talloc_array(c, char,
-                           cache_dir_size + strlen(restname(filename)) + 2);
-    pp_file[0] = '\0';
-    strcat(pp_file, cache_dir);
-    strcat(pp_file, "/");
-    strcat(pp_file, restname(filename));
+    cachedir = talloc_strdup(c, filename);
+    cachedir[cachedir_index + strlen(".tex_cache/")] = '\0';
 
-    /* The output file from gnuplot */
-    pdf_file = talloc_array(c, char, strlen(pp_file) + 6);
-    pdf_file[0] = '\0';
-    strcat(pdf_file, pp_file);
-    strcat(pdf_file, ".pdf");
+    infile = talloc_strdup(c, filename);
+    infile[cachedir_index] = '\0';
+    strcat(infile, filename + strlen(cachedir));
+    infile[strlen(infile) - 4] = '\0';
 
-    /* First, we preprocess the .tex file */
+    TALLOC_FREE(cachedir);
+    cachedir = talloc_strndup(c, filename, basename_len(filename));
+
+    /* The pre-processed file */
+    pp_file = talloc_strdup(c, filename);
+    pp_file[strlen(pp_file) - 4] = '\0';
+
+    /* First, we preprocess the .gnuplot file */
     makefile_create_target(m, pp_file);
     makefile_start_deps(m);
-    makefile_add_dep(m, filename);
+    makefile_add_dep(m, infile);
     makefile_end_deps(m);
 
     makefile_start_cmds(m);
-    makefile_nam_cmd(m, "echo -e \"GPLOTPP\\t%s\"", filename);
-    makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cache_dir);
-    makefile_add_cmd(m, "gnuplotpp -i \"%s\" -o \"%s\"", filename, pp_file);
+    makefile_nam_cmd(m, "echo -e \"GPLOTPP\\t%s\"", infile);
+    makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
+    makefile_add_cmd(m, "gnuplotpp -i \"%s\" -o \"%s\"", infile, pp_file);
     makefile_end_cmds(m);
 
     /* Generates a PDF, checking for additional dependencies */
-    makefile_create_target(m, pdf_file);
+    makefile_create_target(m, filename);
     makefile_start_deps(m);
     makefile_add_dep(m, pp_file);
     deps = stringlist_new(c);
@@ -167,7 +165,7 @@ void process(struct processor *p_uncast, const char *filename,
 
     buf_size = 10240;
     buf = talloc_array(c, char, buf_size);
-    inf = fopen(filename, "r");
+    inf = fopen(infile, "r");
     while (fgets(buf, buf_size, inf) != NULL)
     {
         if (string_index(buf, ".dat\"") != -1)
@@ -203,18 +201,18 @@ void process(struct processor *p_uncast, const char *filename,
                 strlen(included_name) + basename_len(filename) + 3;
             full_path = talloc_array(c, char, full_path_size);
             full_path[0] = '\0';
-            if (basename_len(filename) != 0)
+            if (basename_len(infile) != 0)
             {
-                strncat(full_path, filename, basename_len(filename));
+                strncat(full_path, infile, basename_len(infile));
                 strcat(full_path, "/");
             }
             strcat(full_path, included_name);
 
             /* We need to convert to PDF so latex will input the file */
-            cache_path_size = strlen(cache_dir) + strlen(included_name) + 10;
+            cache_path_size = strlen(cachedir) + strlen(included_name) + 10;
             cache_path = talloc_array(c, char, cache_path_size);
             cache_path[0] = '\0';
-            strcat(cache_path, cache_dir);
+            strcat(cache_path, cachedir);
             strcat(cache_path, "/");
             strcat(cache_path, included_name);
             makefile_add_dep(m, cache_path);
@@ -234,10 +232,10 @@ void process(struct processor *p_uncast, const char *filename,
 
     makefile_start_cmds(m);
     makefile_nam_cmd(m, "echo -e \"GNUPLOT\\t%s\"", filename);
-    makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cache_dir);
+    makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
     makefile_add_cmd(m, "cd \"%s\" ; gnuplot < \"%s\" > \"%s\".ps",
-                     cache_dir, restname(pp_file), restname(pp_file));
-    makefile_add_cmd(m, "ps2pdf \"%s\".ps \"%s\"", pp_file, pdf_file);
+                     cachedir, restname(pp_file), restname(pp_file));
+    makefile_add_cmd(m, "ps2pdf \"%s\".ps \"%s\"", pp_file, filename);
     makefile_add_cmd(m, "rm \"%s\".ps", pp_file);
     makefile_end_cmds(m);
 
@@ -276,7 +274,7 @@ void process(struct processor *p_uncast, const char *filename,
             makefile_nam_cmd(m, "echo -e \"GPLDAT\\t%s\"",
                              stringlist_data(cur_short));
             makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true",
-                             cache_dir);
+                             cachedir);
 
             if (access(buf, R_OK))
             {
@@ -300,7 +298,7 @@ void process(struct processor *p_uncast, const char *filename,
     }
 
     /* Some temproary files were created, make sure to nuke them all */
-    makefile_add_cleancache(m, cache_dir);
+    makefile_add_cleancache(m, cachedir);
 
     /* Cleans up all the memory allocated by this code. */
     TALLOC_FREE(c);

@@ -19,20 +19,19 @@
  * along with tek.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PROCESSOR_LATEX_H
-#define PROCESSOR_LATEX_H
+#ifndef PROCESSOR_IMAGEMAGICK_H
+#define PROCESSOR_IMAGEMAGICK_H
 
 #include "processor.h"
 
-struct processor_latex
+struct processor_imagemagick
 {
     struct processor p;
-    bool nopdf;
 };
 
-extern void processor_latex_boot(void *context);
+extern void processor_imagemagick_boot(void *context);
 
-extern struct processor *processor_latex_search(void *context,
-                                                const char *filename);
+extern struct processor *processor_imagemagick_search(void *context,
+                                                      const char *filename);
 
 #endif

@@ -30,6 +30,7 @@ struct stack *stack_new(struct clopts *o)
 
     s = talloc(o, struct stack);
     s->head = NULL;
+    s->processed = stringlist_new(s);
 
     return s;
 }
@@ -40,6 +41,11 @@ void stack_push(struct stack *s, char *filename)
 
     assert(s != NULL);
     assert(filename != NULL);
+
+    if (stringlist_include(s->processed, filename))
+        return;
+
+    stringlist_add(s->processed, filename);
 
     n = talloc(s, struct stack_node);
     assert(n != NULL);

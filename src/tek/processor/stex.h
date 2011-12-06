@@ -19,20 +19,19 @@
  * along with tek.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PROCESSOR_LATEX_H
-#define PROCESSOR_LATEX_H
+#ifndef PROCESSOR_STEX_H
+#define PROCESSOR_STEX_H
 
 #include "processor.h"
 
-struct processor_latex
+struct processor_stex
 {
     struct processor p;
-    bool nopdf;
 };
 
-extern void processor_latex_boot(void *context);
+extern void processor_stex_boot(void *context);
 
-extern struct processor *processor_latex_search(void *context,
-                                                const char *filename);
+extern struct processor *processor_stex_search(void *context,
+                                               const char *filename);
 
 #endif

@@ -23,6 +23,7 @@
 #define STACK_H
 
 #include "clopts.h"
+#include "stringlist.h"
 
 struct stack_node
 {
@@ -33,6 +34,7 @@ struct stack_node
 struct stack
 {
     struct stack_node *head;
+    struct stringlist *processed;
 };
 
 extern struct stack *stack_new(struct clopts *o);

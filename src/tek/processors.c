@@ -23,6 +23,9 @@
 #include "processor/latex.h"
 #include "processor/directory.h"
 #include "processor/gnuplot.h"
+#include "processor/imagemagick.h"
+#include "processor/pdfcrop.h"
+#include "processor/stex.h"
 
 #include <stdlib.h>
 
@@ -31,6 +34,9 @@ void processors_boot(void *context)
     processor_latex_boot(context);
     processor_directory_boot(context);
     processor_gnuplot_boot(context);
+    processor_imagemagick_boot(context);
+    processor_pdfcrop_boot(context);
+    processor_stex_boot(context);
 }
 
 struct processor *processors_search(void *context, const char *filename)
@@ -46,6 +52,18 @@ struct processor *processors_search(void *context, const char *filename)
         return p;
 
     p = processor_gnuplot_search(context, filename);
+    if (p != NULL)
+        return p;
+
+    p = processor_imagemagick_search(context, filename);
+    if (p != NULL)
+        return p;
+
+    p = processor_pdfcrop_search(context, filename);
+    if (p != NULL)
+        return p;
+
+    p = processor_stex_search(context, filename);
     if (p != NULL)
         return p;
 

@@ -12,3 +12,6 @@ SOURCES	    += texpp/main.c
 
 BINARIES    += gnuplotpp
 SOURCES	    += gnuplotpp/main.c
+
+BINARIES    += texstrip
+SOURCES	    += texstrip/main.c

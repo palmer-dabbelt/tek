@@ -47,7 +47,16 @@ struct processor *processor_latex_search(void *context, const char *filename)
     p = NULL;
 
     if (string_ends_with(filename, ".tex"))
+    {
         p = talloc(context, struct processor_latex);
+        p->nopdf = false;
+    }
+
+    if (string_ends_with(filename, ".tex-nopdf"))
+    {
+        p = talloc(context, struct processor_latex);
+        p->nopdf = true;
+    }
 
     if (p != NULL)
     {
@@ -97,7 +106,7 @@ int string_index(const char *a, const char *b)
     return -1;
 }
 
-void process(struct processor *p_uncast, const char *filename,
+void process(struct processor *p_uncast, const char *filename_input,
              struct stack *s, struct makefile *m)
 {
     void *c;
@@ -110,12 +119,19 @@ void process(struct processor *p_uncast, const char *filename,
     FILE *inf;
     char *buf;
     int buf_size;
+    char *filename;
+    char *phonydeps;
 
     /* We need access to the real structure, get it safely */
     p = talloc_get_type(p_uncast, struct processor_latex);
 
     /* Makes a new context */
     c = talloc_new(p);
+
+    /* FIXME: This is probably wrong... */
+    filename = talloc_strdup(c, filename_input);
+    if (p->nopdf == true)
+        filename[strlen(filename) - 6] = '\0';
 
     /* The cache dir */
     cache_dir_size = basename_len(filename) + strlen(CACHE_DIR) + 2;
@@ -138,37 +154,122 @@ void process(struct processor *p_uncast, const char *filename,
 
     /* The output file from latex */
     pdf_file = talloc_strdup(c, pp_file);
-    pdf_file[strlen(pdf_file) - 3] = '\0';
-    strcat(pdf_file, "pdf");
+    pdf_file[strlen(pdf_file) - 4] = '\0';
+    strcat(pdf_file, ".pdf");
 
     /* The actual output file the user wants */
     out_file = talloc_strdup(c, filename);
-    out_file[strlen(out_file) - 3] = '\0';
-    strcat(out_file, "pdf");
+    out_file[strlen(out_file) - 4] = '\0';
+    strcat(out_file, ".pdf");
 
     /* First, we preprocess the .tex file */
-    makefile_create_target(m, pp_file);
-    makefile_start_deps(m);
-    makefile_add_dep(m, filename);
-    makefile_end_deps(m);
+    if (p->nopdf == false)
+    {
+        makefile_create_target(m, pp_file);
+        makefile_start_deps(m);
+        makefile_add_dep(m, filename);
+        makefile_end_deps(m);
 
-    makefile_start_cmds(m);
-    makefile_nam_cmd(m, "echo -e \"TEXPP\\t%s\"", filename);
-    makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cache_dir);
-    makefile_add_cmd(m, "texpp -i \"%s\" -o \"%s\"", filename, pp_file);
-    makefile_end_cmds(m);
-
+        makefile_start_cmds(m);
+        makefile_nam_cmd(m, "echo -e \"TEXPP\\t%s\"", filename);
+        makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true",
+                         cache_dir);
+        makefile_add_cmd(m, "texpp -i \"%s\" -o \"%s\"", filename, pp_file);
+        makefile_end_cmds(m);
+    }
     /* Then, we use latex to process the PDF.  Here is where we scan the
      * file for dependencies. */
-    makefile_create_target(m, out_file);
-    makefile_start_deps(m);
-    makefile_add_dep(m, pp_file);
+    if (p->nopdf == false)
+    {
+        makefile_create_target(m, out_file);
+        makefile_start_deps(m);
+        makefile_add_dep(m, pp_file);
+    }
+    else
+    {
+        phonydeps = talloc_array(c, char, strlen(pp_file) + 20);
+        phonydeps[0] = '\0';
+        strcat(phonydeps, pp_file);
+        phonydeps[strlen(phonydeps) - 4] = '\0';
+        strcat(phonydeps, ".stex-stexdeps");
+
+        makefile_create_target(m, phonydeps);
+        makefile_start_deps(m);
+    }
 
     buf_size = 10240;
     buf = talloc_array(c, char, buf_size);
     inf = fopen(filename, "r");
     while (fgets(buf, buf_size, inf) != NULL)
     {
+        if (string_index(buf, "\\input") != -1)
+        {
+            int index;
+            char *included_name;
+            char *full_path;
+            int full_path_size;
+            char *pdf_path;
+            int pdf_path_size;
+
+            /* Checks for comments */
+            index = string_index(buf, "\\input");
+            if (string_index(buf, "%") != -1)
+            {
+                int cindex;
+
+                cindex = string_index(buf, "%");
+
+                if (cindex == 0)
+                    continue;
+
+                if ((buf[cindex - 1] != '\\') && (cindex < index))
+                    continue;
+            }
+
+            /* Removes all the optional agruments */
+            index += strlen("\\input");
+            while ((buf[index] != '{') && (buf[index] != '\0'))
+                index++;
+
+            /* Ensures that the code is properly formed */
+            if (buf[index] == '\0')
+            {
+                fprintf(stderr, "Bad input\n");
+                continue;
+            }
+
+            /* Stores the buffer and gets the filename */
+            included_name = buf + index + 1;
+            while ((buf[index] != '}') && (buf[index] != '\0'))
+                index++;
+            buf[index] = '\0';
+
+            /* Creates the full path */
+            full_path_size =
+                strlen(included_name) + basename_len(filename) + 3;
+            full_path = talloc_array(c, char, full_path_size);
+            full_path[0] = '\0';
+            if (basename_len(filename) != 0)
+            {
+                strncat(full_path, filename, basename_len(filename));
+                strcat(full_path, "/");
+            }
+            strcat(full_path, included_name);
+
+            /* We need to convert to PDF so latex will input the file */
+            pdf_path_size = strlen(cache_dir) + strlen(included_name) + 10;
+            pdf_path = talloc_array(c, char, pdf_path_size);
+            pdf_path[0] = '\0';
+            strcat(pdf_path, cache_dir);
+            strcat(pdf_path, "/");
+            strcat(pdf_path, included_name);
+            makefile_add_dep(m, pdf_path);
+
+            /* The path to the input file should be processed */
+            stack_push(s, pdf_path);
+            talloc_unlink(full_path, c);
+        }
+
         if (string_index(buf, "\\includegraphics") != -1)
         {
             int index;
@@ -178,8 +279,22 @@ void process(struct processor *p_uncast, const char *filename,
             char *pdf_path;
             int pdf_path_size;
 
-            /* Removes all the optional agruments */
+            /* Checks for comments */
             index = string_index(buf, "\\includegraphics");
+            if (string_index(buf, "%") != -1)
+            {
+                int cindex;
+
+                cindex = string_index(buf, "%");
+
+                if (cindex == 0)
+                    continue;
+
+                if ((buf[cindex - 1] != '\\') && (cindex < index))
+                    continue;
+            }
+
+            /* Removes all the optional agruments */
             index += strlen("\\includegraphics");
             while ((buf[index] != '{') && (buf[index] != '\0'))
                 index++;
@@ -220,27 +335,39 @@ void process(struct processor *p_uncast, const char *filename,
             makefile_add_dep(m, pdf_path);
 
             /* The path to the input file should be processed */
-            stack_push(s, full_path);
+            stack_push(s, pdf_path);
             talloc_unlink(full_path, c);
         }
     }
 
     TALLOC_FREE(buf);
 
-    makefile_end_deps(m);
+    if (p->nopdf == false)
+    {
+        makefile_end_deps(m);
 
-    makefile_start_cmds(m);
-    makefile_nam_cmd(m, "echo -e \"LATEX\\t%s\"", filename);
-    makefile_add_cmd(m,
-                     "cd \"%s\" ; "
-                     "pdflatex -interaction=batchmode \"%s\" >& /dev/null || "
-                     "pdflatex \"%s\"",
-                     cache_dir, restname(pp_file), restname(pp_file));
-    makefile_add_cmd(m, "cp \"%s\" \"%s\"", pdf_file, out_file);
-    makefile_end_cmds(m);
+        makefile_start_cmds(m);
+        makefile_nam_cmd(m, "echo -e \"LATEX\\t%s\"", filename);
+        makefile_add_cmd(m,
+                         "cd \"%s\" ; "
+                         "pdflatex -interaction=batchmode \"%s\" >& /dev/null"
+                         " || pdflatex \"%s\"",
+                         cache_dir, restname(pp_file), restname(pp_file));
+        makefile_add_cmd(m, "cp \"%s\" \"%s\"", pdf_file, out_file);
+        makefile_end_cmds(m);
+    }
+    else
+    {
+        makefile_end_deps(m);
+
+        makefile_start_cmds(m);
+        makefile_add_cmd(m, "date > \"%s\"", phonydeps);
+        makefile_end_cmds(m);
+    }
 
     /* The only real file we added was the output pdf */
-    makefile_add_all(m, out_file);
+    if (p->nopdf == false)
+        makefile_add_all(m, out_file);
 
     /* But we did also create a whole bunch of temporary files (potentially, at
      * least. */
