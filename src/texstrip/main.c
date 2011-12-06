@@ -66,7 +66,18 @@ int main(int argc, char **argv)
     otf = fopen(output, "w");
 
     while (fgets(buf, BUF_SIZE, inf) != NULL)
-        fputs(buf, otf);
+    {
+	if (strncmp(buf, "\\documentclass{", strlen("\\documentclass{")) == 0)
+	    continue;
+	else if (strncmp(buf, "\\usepackage{", strlen("\\usepackage{")) == 0)
+	    continue;
+	else if (strncmp(buf, "\\begin{docume", strlen("\\begin{docume")) == 0)
+	    continue;
+	else if (strncmp(buf, "\\end{document", strlen("\\end{document")) == 0)
+	    continue;
+	else
+	    fputs(buf, otf);
+    }
 
     fclose(inf);
     fclose(otf);
