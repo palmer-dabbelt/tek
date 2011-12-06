@@ -353,6 +353,11 @@ void process(struct processor *p_uncast, const char *filename_input,
                          "pdflatex -interaction=batchmode \"%s\" >& /dev/null"
                          " || pdflatex \"%s\"",
                          cache_dir, restname(pp_file), restname(pp_file));
+        makefile_add_cmd(m,
+                         "cd \"%s\" ; "
+                         "pdflatex -interaction=batchmode \"%s\" >& /dev/null"
+                         " || pdflatex \"%s\"",
+                         cache_dir, restname(pp_file), restname(pp_file));
         makefile_add_cmd(m, "cp \"%s\" \"%s\"", pdf_file, out_file);
         makefile_end_cmds(m);
     }
