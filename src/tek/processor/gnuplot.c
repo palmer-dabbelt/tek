@@ -231,7 +231,7 @@ void process(struct processor *p_uncast, const char *filename,
     makefile_end_deps(m);
 
     makefile_start_cmds(m);
-    makefile_nam_cmd(m, "echo -e \"GNUPLOT\\t%s\"", filename);
+    makefile_nam_cmd(m, "echo -e \"GNUPLOT\\t%s\"", infile);
     makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
     makefile_add_cmd(m, "cd \"%s\" ; gnuplot < \"%s\" > \"%s\".ps",
                      cachedir, restname(pp_file), restname(pp_file));
