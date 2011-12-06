@@ -19,35 +19,19 @@
  * along with tek.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "processor/processor.h"
-#include "processor/latex.h"
-#include "processor/directory.h"
-#include "processor/gnuplot.h"
+#ifndef PROCESSOR_GNUPLOT_H
+#define PROCESSOR_GNUPLOT_H
 
-#include <stdlib.h>
+#include "processor.h"
 
-void processors_boot(void *context)
+struct processor_gnuplot
 {
-    processor_latex_boot(context);
-    processor_directory_boot(context);
-    processor_gnuplot_boot(context);
-}
+    struct processor p;
+};
 
-struct processor *processors_search(void *context, const char *filename)
-{
-    struct processor *p;
+extern void processor_gnuplot_boot(void *context);
 
-    p = processor_latex_search(context, filename);
-    if (p != NULL)
-        return p;
+extern struct processor *processor_gnuplot_search(void *context,
+                                                  const char *filename);
 
-    p = processor_directory_search(context, filename);
-    if (p != NULL)
-        return p;
-
-    p = processor_gnuplot_search(context, filename);
-    if (p != NULL)
-        return p;
-
-    return NULL;
-}
+#endif

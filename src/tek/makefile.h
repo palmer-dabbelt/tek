@@ -79,6 +79,7 @@ extern void makefile_end_deps(struct makefile *m);
 
 /* Adds a new comand for building a target (_start as above) */
 extern void makefile_start_cmds(struct makefile *m);
+extern void makefile_nam_cmd(struct makefile *m, const char *format, ...);
 extern void makefile_add_cmd(struct makefile *m, const char *format, ...);
 extern void makefile_end_cmds(struct makefile *m);
 

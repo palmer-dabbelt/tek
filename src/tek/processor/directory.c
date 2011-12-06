@@ -48,8 +48,8 @@ struct processor *processor_directory_search(void *context,
 
     p = NULL;
 
-    if (stat(filename, &statbuf) == 0)
-        if (S_ISDIR(statbuf.st_mode))
+    if ((strlen(filename) == 0) || (stat(filename, &statbuf) == 0))
+        if ((strlen(filename) == 0) || (S_ISDIR(statbuf.st_mode)))
             p = talloc(context, struct processor_directory);
 
     if (p != NULL)
@@ -91,8 +91,11 @@ void process(struct processor *p_uncast, const char *filename,
     exclude_filename_size = strlen(filename) + strlen(".tekignore") + 10;
     exclude_filename = talloc_array(c, char, exclude_filename_size);
     exclude_filename[0] = '\0';
-    strcat(exclude_filename, filename);
-    strcat(exclude_filename, "/");
+    if (strlen(filename) > 0)
+    {
+        strcat(exclude_filename, filename);
+        strcat(exclude_filename, "/");
+    }
     strcat(exclude_filename, ".tekignore");
 
     exclude_file = NULL;
@@ -123,14 +126,21 @@ void process(struct processor *p_uncast, const char *filename,
     distclean_filename_size = strlen(filename) + strlen("Makefile") + 10;
     distclean_filename = talloc_array(c, char, distclean_filename_size);
     distclean_filename[0] = '\0';
-    strcat(distclean_filename, filename);
-    strcat(distclean_filename, "/");
+    if (strlen(filename) > 0)
+    {
+        strcat(distclean_filename, filename);
+        strcat(distclean_filename, "/");
+    }
     strcat(distclean_filename, "Makefile");
     makefile_add_distclean(m, distclean_filename);
     talloc_unlink(c, distclean_filename);
 
     /* Checks this entire directory for files/directories */
-    dip = opendir(filename);
+    if (strlen(filename) > 0)
+        dip = opendir(filename);
+    else
+        dip = opendir(".");
+
     while ((dit = readdir(dip)) != NULL)
     {
         struct stat statbuf;
@@ -146,8 +156,11 @@ void process(struct processor *p_uncast, const char *filename,
         longname_size = strlen(filename) + strlen(dit->d_name) + 3;
         longname = talloc_array(c, char, longname_size);
         longname[0] = '\0';
-        strcat(longname, filename);
-        strcat(longname, "/");
+        if (strlen(filename) > 0)
+        {
+            strcat(longname, filename);
+            strcat(longname, "/");
+        }
         strcat(longname, dit->d_name);
 
         stat(longname, &statbuf);

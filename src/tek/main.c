@@ -63,7 +63,7 @@ int main(int argc, char **argv)
     /* No arguments means find all possible tex files */
     if (argc == 1)
     {
-        filename = talloc_strdup(context_argstrdup, ".");
+        filename = talloc_strdup(context_argstrdup, "");
         stack_push(s, filename);
         talloc_unlink(context_argstrdup, filename);
     }

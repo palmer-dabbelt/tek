@@ -26,19 +26,6 @@
 
 #define BUF_SIZE 10240
 
-static int string_index(const char *a, const char *b)
-{
-    int i;
-
-    for (i = 0; i < strlen(a); i++)
-    {
-        if (strncmp(a + i, b, strlen(b)) == 0)
-            return i;
-    }
-
-    return -1;
-}
-
 int main(int argc, char **argv)
 {
     int i;
@@ -78,41 +65,10 @@ int main(int argc, char **argv)
     inf = fopen(input, "r");
     otf = fopen(output, "w");
 
+    fputs("set terminal postscript enhanced color\n", otf);
+
     while (fgets(buf, BUF_SIZE, inf) != NULL)
-    {
-        if (string_index(buf, "\\usepackage{graphicx}") != -1)
-        {
-            fputs(buf, otf);
-            fputs("\\usepackage{grffile}\n", otf);
-        }
-        else if (string_index(buf, "\\includegraphics") != -1)
-        {
-            int index;
-
-            /* Removes all the optional agruments */
-            index = string_index(buf, "\\includegraphics");
-            index += strlen("\\includegraphics");
-            while ((buf[index] != '}') && (buf[index] != '\0'))
-                index++;
-
-            /* Ensures that the code is properly formed */
-            if (buf[index] == '\0')
-            {
-                fprintf(stderr, "Bad includegraphics\n");
-                return 1;
-            }
-
-            /* Appends ".pdf" to the filename */
-            fwrite(buf, 1, index, otf);
-            fputs(".pdf", otf);
-            fputs(buf + index, otf);
-        }
-        else
-        {
-            /* There was no special processor to process this file */
-            fputs(buf, otf);
-        }
-    }
+        fputs(buf, otf);
 
     fclose(inf);
     fclose(otf);

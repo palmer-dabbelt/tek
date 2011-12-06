@@ -110,6 +110,24 @@ void makefile_start_cmds(struct makefile *m)
     m->state = MAKEFILE_STATE_CMDS;
 }
 
+void makefile_nam_cmd(struct makefile *m, const char *format, ...)
+{
+#ifndef DEBUG
+    va_list args;
+
+    assert(m->state == MAKEFILE_STATE_CMDS);
+    m->state = MAKEFILE_STATE_CMDS;
+
+    fprintf(m->file, "\t@");
+
+    va_start(args, NULL);
+    vfprintf(m->file, format, args);
+    va_end(args);
+
+    fprintf(m->file, "\n");
+#endif
+}
+
 void makefile_add_cmd(struct makefile *m, const char *format, ...)
 {
     va_list args;
@@ -117,7 +135,11 @@ void makefile_add_cmd(struct makefile *m, const char *format, ...)
     assert(m->state == MAKEFILE_STATE_CMDS);
     m->state = MAKEFILE_STATE_CMDS;
 
+#ifdef DEBUG
     fprintf(m->file, "\t");
+#else
+    fprintf(m->file, "\t@");
+#endif
 
     va_start(args, NULL);
     vfprintf(m->file, format, args);
@@ -160,7 +182,7 @@ int mf_destructor(struct makefile *m)
     cur = stringlist_start(m->targets_cleancache);
     while (stringlist_notend(cur))
     {
-        makefile_add_cmd(m, "@rm -rf \"%s\" >& /dev/null || true",
+        makefile_add_cmd(m, "rm -rf \"%s\" >& /dev/null || true",
                          stringlist_data(cur));
         cur = stringlist_next(cur);
     }
@@ -176,7 +198,7 @@ int mf_destructor(struct makefile *m)
     cur = stringlist_start(m->targets_clean);
     while (stringlist_notend(cur))
     {
-        makefile_add_cmd(m, "@rm \"%s\" >& /dev/null || true",
+        makefile_add_cmd(m, "rm \"%s\" >& /dev/null || true",
                          stringlist_data(cur));
         cur = stringlist_next(cur);
     }
@@ -191,7 +213,7 @@ int mf_destructor(struct makefile *m)
     cur = stringlist_start(m->targets_distclean);
     while (stringlist_notend(cur))
     {
-        makefile_add_cmd(m, "@rm \"%s\" >& /dev/null || true",
+        makefile_add_cmd(m, "rm \"%s\" >& /dev/null || true",
                          stringlist_data(cur));
         cur = stringlist_next(cur);
     }
