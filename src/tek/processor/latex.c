@@ -30,7 +30,7 @@ static int basename_len(const char *string);
 static const char *restname(const char *string);
 
 static void process(struct processor *p_uncast, const char *filename,
-		    struct stack *s, struct makefile *m);
+                    struct stack *s, struct makefile *m);
 
 static char *p_name;
 
@@ -51,7 +51,7 @@ struct processor *processor_latex_search(void *context, const char *filename)
     if (p != NULL)
     {
         p->p.name = talloc_reference(p, p_name);
-	p->p.process = &process;
+        p->p.process = &process;
     }
 
     return (struct processor *)p;
@@ -65,11 +65,11 @@ bool string_ends_with(const char *string, const char *end)
 int basename_len(const char *string)
 {
     int i;
-    
-    for (i = strlen(string)-1; i >= 0; i--)
+
+    for (i = strlen(string) - 1; i >= 0; i--)
     {
-	if (string[i] == '/')
-	    return i;
+        if (string[i] == '/')
+            return i;
     }
 
     return 0;
@@ -77,11 +77,14 @@ int basename_len(const char *string)
 
 const char *restname(const char *string)
 {
-    return string + basename_len(string);
+    if (basename_len(string) == 0)
+        return string;
+
+    return string + basename_len(string) + 1;
 }
 
-void process(struct processor *p_uncast, const char *filename, struct stack *s, 
-	     struct makefile *m)
+void process(struct processor *p_uncast, const char *filename,
+             struct stack *s, struct makefile *m)
 {
     void *c;
     int cache_dir_size;
@@ -90,7 +93,7 @@ void process(struct processor *p_uncast, const char *filename, struct stack *s,
     char *pdf_file;
     char *out_file;
     struct processor_latex *p;
-    
+
     /* We need access to the real structure, get it safely */
     p = talloc_get_type(p_uncast, struct processor_latex);
 
@@ -103,14 +106,14 @@ void process(struct processor *p_uncast, const char *filename, struct stack *s,
     cache_dir[0] = '\0';
     if (basename_len(filename) != 0)
     {
-	strncat(cache_dir, filename, basename_len(filename));
-	strcat(cache_dir, "/");
+        strncat(cache_dir, filename, basename_len(filename));
+        strcat(cache_dir, "/");
     }
     strcat(cache_dir, CACHE_DIR);
 
     /* The preprocessed file */
     pp_file = talloc_array(c, char,
-			   cache_dir_size + strlen(restname(filename)) + 2);
+                           cache_dir_size + strlen(restname(filename)) + 2);
     pp_file[0] = '\0';
     strcat(pp_file, cache_dir);
     strcat(pp_file, "/");
@@ -126,8 +129,41 @@ void process(struct processor *p_uncast, const char *filename, struct stack *s,
     out_file[strlen(out_file) - 3] = '\0';
     strcat(out_file, "pdf");
 
-    /* Generates the targets for this file. */
-    
+    /* First, we preprocess the .tex file */
+    makefile_create_target(m, pp_file);
+    makefile_start_deps(m);
+    makefile_add_dep(m, filename);
+    makefile_end_deps(m);
+
+    makefile_start_cmds(m);
+    makefile_add_cmd(m, "@echo -e \"TEXPP\\t%s\"", filename);
+    makefile_add_cmd(m, "@mkdir -p \"%s\" >& /dev/null || true", cache_dir);
+    makefile_add_cmd(m, "@texpp -i \"%s\" -o \"%s\"", filename, pp_file);
+    makefile_end_cmds(m);
+
+    /* Then, we use latex to process the PDF */
+    makefile_create_target(m, out_file);
+    makefile_start_deps(m);
+    makefile_add_dep(m, pp_file);
+    makefile_end_deps(m);
+
+    makefile_start_cmds(m);
+    makefile_add_cmd(m, "@echo -e \"LATEX\\t%s\"", filename);
+    makefile_add_cmd(m,
+                     "@cd \"%s\" ; "
+                     "pdflatex -interaction=batchmode \"%s\" >& /dev/null || "
+                     "pdflatex \"%s\"",
+                     cache_dir, restname(pp_file), restname(pp_file));
+    makefile_add_cmd(m, "@cp \"%s\" \"%s\"", pdf_file, out_file);
+    makefile_end_cmds(m);
+
+    /* The only real file we added was the output pdf */
+    makefile_add_all(m, out_file);
+
+    /* But we did also create a whole bunch of temporary files (potentially, at
+     * least. */
+    makefile_add_clean(m, out_file);
+    makefile_add_cleancache(m, cache_dir);
 
 #ifdef DEBUG
     fprintf(stderr, "cache_dir: '%s'\n", cache_dir);

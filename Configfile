@@ -1,9 +1,11 @@
 LANGUAGES   += c
 COMPILEOPTS += -Wall
 COMPILEOPTS += -Werror
-COMPILEOPTS += -ansi
 
 BINARIES    += tek
 LINKOPTS    += `pkg-config talloc --libs`
 COMPILEOPTS += `pkg-config talloc --cflags`
 SOURCES	    += tek/main.c
+
+BINARIES    += texpp
+SOURCES	    += texpp/main.c

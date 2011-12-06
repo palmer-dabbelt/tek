@@ -19,29 +19,19 @@
  * along with tek.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "processor/processor.h"
-#include "processor/latex.h"
-#include "processor/directory.h"
+#ifndef PROCESSOR_DIRECTORY_H
+#define PROCESSOR_DIRECTORY_H
 
-#include <stdlib.h>
+#include "processor.h"
 
-void processors_boot(void *context)
+struct processor_directory
 {
-    processor_latex_boot(context);
-    processor_directory_boot(context);
-}
+    struct processor p;
+};
 
-struct processor *processors_search(void *context, const char *filename)
-{
-    struct processor *p;
+extern void processor_directory_boot(void *context);
 
-    p = processor_latex_search(context, filename);
-    if (p != NULL)
-        return p;
+extern struct processor *processor_directory_search(void *context,
+                                                    const char *filename);
 
-    p = processor_directory_search(context, filename);
-    if (p != NULL)
-        return p;
-
-    return NULL;
-}
+#endif

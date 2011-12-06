@@ -39,71 +39,71 @@ void stringlist_add(struct stringlist *l, const char *to_add)
 {
     if (l->head == NULL)
     {
-	l->head = talloc(l, struct stringlist_node);
-	l->head->next = NULL;
-	l->head->data = talloc_strdup(l->head, to_add);
+        l->head = talloc(l, struct stringlist_node);
+        l->head->next = NULL;
+        l->head->data = talloc_strdup(l->head, to_add);
     }
     else
     {
-	 struct stringlist_node *cur;
+        struct stringlist_node *cur;
 
-	 cur = l->head;
-	 while (cur->next != NULL)
-	     cur = cur->next;
+        cur = l->head;
+        while (cur->next != NULL)
+            cur = cur->next;
 
-	 cur->next = talloc(l, struct stringlist_node);
-	 cur->next->next = NULL;
-	 cur->next->data = talloc_reference(cur->next, to_add);
-     }
- }
+        cur->next = talloc(l, struct stringlist_node);
+        cur->next->next = NULL;
+        cur->next->data = talloc_reference(cur->next, to_add);
+    }
+}
 
- void stringlist_del(struct stringlist *l, const char *to_del)
- {
-     struct stringlist_node *cur, *prev;
+void stringlist_del(struct stringlist *l, const char *to_del)
+{
+    struct stringlist_node *cur, *prev;
 
-     prev = NULL;
-     cur = l->head;
-     while (cur != NULL)
-     {
-	 if (strcmp(cur->data, to_del) == 0)
-	     break;
+    prev = NULL;
+    cur = l->head;
+    while (cur != NULL)
+    {
+        if (strcmp(cur->data, to_del) == 0)
+            break;
 
-	 prev = cur;
-	 cur = cur->next;
-     }
+        prev = cur;
+        cur = cur->next;
+    }
 
-     if (cur == NULL)
-	 return;
+    if (cur == NULL)
+        return;
 
-     if (prev == NULL)
-     {
-	 struct stringlist_node *old;
+    if (prev == NULL)
+    {
+        struct stringlist_node *old;
 
-	 old = l->head;
-	 l->head = old->next;
-	 talloc_free(old);
-     }
-     else
-     {
-	 struct stringlist_node *old;
-	 
-	 old = cur;
-	 prev->next = old->next;
-	 talloc_free(old);
-     }
+        old = l->head;
+        l->head = old->next;
+        talloc_free(old);
+    }
+    else
+    {
+        struct stringlist_node *old;
+
+        old = cur;
+        prev->next = old->next;
+        talloc_free(old);
+    }
 }
 
 bool stringlist_include(struct stringlist *l, const char *s)
 {
     struct stringlist_node *cur;
-    
+
     cur = l->head;
     while (cur != NULL)
     {
-	if (strcmp(cur->data, s) == 0)
-	    return true;
-	
-	cur = cur->next;
+        if (strcmp(cur->data, s) == 0)
+            return true;
+
+        cur = cur->next;
     }
 
     return false;

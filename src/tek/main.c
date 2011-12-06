@@ -39,6 +39,7 @@ int main(int argc, char **argv)
     void *context_search;
     void *context_pop;
     int exitvalue;
+    int i;
 
     /* Starts with no errors */
     exitvalue = 0;
@@ -59,12 +60,22 @@ int main(int argc, char **argv)
     context_pop = talloc_init("main(): pop");
     context_search = talloc_init("main(): search");
 
-    /* FIXME: Don't assume the first option is a tex file */
-    assert(argc == 2);
-    assert(argv[1] != NULL);
-    filename = talloc_strdup(context_argstrdup, argv[1]);
-    stack_push(s, filename);
-    talloc_unlink(context_argstrdup, filename);
+    /* No arguments means find all possible tex files */
+    if (argc == 1)
+    {
+        filename = talloc_strdup(context_argstrdup, ".");
+        stack_push(s, filename);
+        talloc_unlink(context_argstrdup, filename);
+    }
+    else
+    {
+        for (i = 1; i < argc; i++)
+        {
+            filename = talloc_strdup(context_argstrdup, argv[i]);
+            stack_push(s, filename);
+            talloc_unlink(context_argstrdup, filename);
+        }
+    }
 
     /* Keeps parsing files until there aren't any files left. */
     while ((filename = stack_pop(s, context_pop)) != NULL)
@@ -86,9 +97,9 @@ int main(int argc, char **argv)
         }
 
         /* If the processor exists, then use it to process the file. */
-	proc->process(proc, filename, s, m);
+        proc->process(proc, filename, s, m);
 
-	/* Cleans up everything we just allocated */
+        /* Cleans up everything we just allocated */
         talloc_unlink(context_search, proc);
         talloc_unlink(context_pop, filename);
     }

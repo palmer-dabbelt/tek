@@ -49,4 +49,25 @@ extern void stringlist_del(struct stringlist *l, const char *to_del);
 /* Checks if the given string is in the given string list */
 extern bool stringlist_include(struct stringlist *l, const char *s);
 
+static inline struct stringlist_node *stringlist_start(struct stringlist *l)
+{
+    return l->head;
+}
+
+static inline bool stringlist_notend(struct stringlist_node *c)
+{
+    return c != NULL;
+}
+
+static inline const char *stringlist_data(struct stringlist_node *c)
+{
+    return c->data;
+}
+
+static inline struct stringlist_node *stringlist_next(struct stringlist_node
+                                                      *c)
+{
+    return c->next;
+}
+
 #endif
