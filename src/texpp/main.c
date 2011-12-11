@@ -104,7 +104,7 @@ int main(int argc, char **argv)
 
             /* Appends ".pdf" to the filename */
             if (fwrite(buf, 1, index, otf) != index)
-		abort();
+                abort();
             fputs(".pdf", otf);
             fputs(buf + index, otf);
         }

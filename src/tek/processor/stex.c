@@ -128,6 +128,7 @@ void process(struct processor *p_uncast, const char *filename,
     makefile_create_target(m, filename);
     makefile_start_deps(m);
     makefile_add_dep(m, "%s-stexdeps", filename);
+    makefile_add_dep(m, infile);
     makefile_end_deps(m);
 
     makefile_start_cmds(m);

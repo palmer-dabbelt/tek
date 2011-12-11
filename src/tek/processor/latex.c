@@ -365,14 +365,14 @@ void process(struct processor *p_uncast, const char *filename_input,
     }
     else
     {
-	if (phonydeps != NULL)
-	{
-	    makefile_end_deps(m);
-	    
-	    makefile_start_cmds(m);
-	    makefile_add_cmd(m, "date > \"%s\"", phonydeps);
-	    makefile_end_cmds(m);
-	}
+        if (phonydeps != NULL)
+        {
+            makefile_end_deps(m);
+
+            makefile_start_cmds(m);
+            makefile_add_cmd(m, "date > \"%s\"", phonydeps);
+            makefile_end_cmds(m);
+        }
     }
 
     /* The only real file we added was the output pdf */
