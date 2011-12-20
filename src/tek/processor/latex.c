@@ -121,6 +121,7 @@ void process(struct processor *p_uncast, const char *filename_input,
     int buf_size;
     char *filename;
     char *phonydeps;
+    char *biblio;
 
     phonydeps = NULL;
 
@@ -129,6 +130,9 @@ void process(struct processor *p_uncast, const char *filename_input,
 
     /* Makes a new context */
     c = talloc_new(p);
+
+    /* By default, there is no bibliography */
+    biblio = NULL;
 
     /* FIXME: This is probably wrong... */
     filename = talloc_strdup(c, filename_input);
@@ -340,6 +344,63 @@ void process(struct processor *p_uncast, const char *filename_input,
             stack_push(s, pdf_path);
             talloc_unlink(full_path, c);
         }
+
+        if (string_index(buf, "\\bibliography{") != -1)
+        {
+            int index;
+            char *included_name;
+            char *full_path;
+            int full_path_size;
+
+            /* Checks for comments */
+            index = string_index(buf, "\\bibliography");
+            if (string_index(buf, "%") != -1)
+            {
+                int cindex;
+
+                cindex = string_index(buf, "%");
+
+                if (cindex == 0)
+                    continue;
+
+                if ((buf[cindex - 1] != '\\') && (cindex < index))
+                    continue;
+            }
+
+            /* Removes all the optional agruments */
+            index += strlen("\\bibliography");
+            while ((buf[index] != '{') && (buf[index] != '\0'))
+                index++;
+
+            /* Ensures that the code is properly formed */
+            if (buf[index] == '\0')
+            {
+                fprintf(stderr, "Bad bibliography\n");
+                continue;
+            }
+
+            /* Stores the buffer and gets the filename */
+            included_name = buf + index + 1;
+            while ((buf[index] != '}') && (buf[index] != '\0'))
+                index++;
+            buf[index] = '\0';
+
+            /* Creates the full path */
+            full_path_size =
+                strlen(included_name) + basename_len(filename) + 9;
+            full_path = talloc_array(c, char, full_path_size);
+            full_path[0] = '\0';
+            if (basename_len(filename) != 0)
+            {
+                strncat(full_path, filename, basename_len(filename));
+                strcat(full_path, "/");
+            }
+            strcat(full_path, included_name);
+            strcat(full_path, ".bib");
+
+            biblio = full_path;
+            makefile_add_dep(m, full_path);
+        }
     }
 
     TALLOC_FREE(buf);
@@ -350,6 +411,23 @@ void process(struct processor *p_uncast, const char *filename_input,
 
         makefile_start_cmds(m);
         makefile_nam_cmd(m, "echo -e \"LATEX\\t%s\"", filename);
+        if (biblio != NULL)
+        {
+            makefile_add_cmd(m, "cp \"%s\" \"%s\"", biblio, cache_dir);
+            makefile_add_cmd(m,
+                             "cd \"%s\" ; "
+                             "pdflatex -interaction=batchmode \"%s\" "
+                             ">& /dev/null"
+                             " || pdflatex \"%s\"",
+                             cache_dir, restname(pp_file), restname(pp_file));
+            makefile_add_cmd(m,
+                             "cd \"%s\" ; "
+                             "bibtex `basename \"%s\" .tex` >& /dev/null || "
+                             "bibtex `basename \"%s\" .tex`",
+                             cache_dir, restname(pp_file), restname(pp_file));
+
+        }
+
         makefile_add_cmd(m,
                          "cd \"%s\" ; "
                          "pdflatex -interaction=batchmode \"%s\" >& /dev/null"
