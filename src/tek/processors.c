@@ -26,6 +26,7 @@
 #include "processor/imagemagick.h"
 #include "processor/pdfcrop.h"
 #include "processor/stex.h"
+#include "processor/source.h"
 
 #include <stdlib.h>
 
@@ -37,6 +38,7 @@ void processors_boot(void *context)
     processor_imagemagick_boot(context);
     processor_pdfcrop_boot(context);
     processor_stex_boot(context);
+    processor_source_boot(context);
 }
 
 struct processor *processors_search(void *context, const char *filename)
@@ -64,6 +66,10 @@ struct processor *processors_search(void *context, const char *filename)
         return p;
 
     p = processor_stex_search(context, filename);
+    if (p != NULL)
+        return p;
+
+    p = processor_source_search(context, filename);
     if (p != NULL)
         return p;
 
