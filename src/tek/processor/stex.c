@@ -1,7 +1,7 @@
 
 /*
  * Copyright (C) 2011 Daniel Dabbelt
- *   <palmem@comcast.net>
+ *   <palmer@dabbelt.com>
  *
  * This file is part of tek.
  * 
