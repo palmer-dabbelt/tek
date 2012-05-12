@@ -23,6 +23,7 @@
 #define MAKEFILE_H
 
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "clopts.h"
 #include "stringlist.h"
@@ -41,6 +42,9 @@ struct makefile
     /* The current state of the makefile */
     enum makefile_state state;
 
+    /* This is true if we're going to skip this target. */
+    bool skip_target;
+
     /* The file pointer used to write to this makefile.  Don't use this
      * directly, but instead use the methods below */
     FILE *file;
@@ -57,6 +61,10 @@ struct makefile
 
     /* These targets will only be removed on a distclean */
     struct stringlist *targets_distclean;
+
+    /* Keeps track of every target that's ever been created, to check for
+     * duplicates. */
+    struct stringlist *every_target;
 };
 
 /* Creates a new makefile, allocating it as a child of "o" */

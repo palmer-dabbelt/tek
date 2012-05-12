@@ -37,6 +37,7 @@ struct makefile *makefile_new(struct clopts *o)
     m->targets_clean = stringlist_new(m);
     m->targets_cleancache = stringlist_new(m);
     m->targets_distclean = stringlist_new(m);
+    m->every_target = stringlist_new(m);
     m->state = MAKEFILE_STATE_NONE;
 
     fprintf(m->file, "SHELL=/bin/bash\n");
@@ -53,7 +54,20 @@ void makefile_create_target(struct makefile *m, const char *name)
     assert(m->state == MAKEFILE_STATE_NONE);
     m->state = MAKEFILE_STATE_TARGET;
 
-    fprintf(m->file, "%s: Makefile", name);
+    if (stringlist_include(m->every_target, name))
+    {
+        m->skip_target = true;
+    }
+    else
+    {
+        char *tmp;
+
+        tmp = talloc_strdup(m, name);
+        stringlist_add(m->every_target, tmp);
+        talloc_unlink(m, tmp);
+        fprintf(m->file, "%s: Makefile", name);
+        m->skip_target = false;
+    }
 }
 
 void makefile_add_all(struct makefile *m, const char *name)
@@ -89,6 +103,9 @@ void makefile_add_dep(struct makefile *m, const char *format, ...)
     assert(m->state == MAKEFILE_STATE_DEPS);
     m->state = MAKEFILE_STATE_DEPS;
 
+    if (m->skip_target)
+        return;
+
     fprintf(m->file, " ");
 
     va_start(args, NULL);
@@ -100,6 +117,9 @@ void makefile_end_deps(struct makefile *m)
 {
     assert(m->state == MAKEFILE_STATE_DEPS);
     m->state = MAKEFILE_STATE_DEPS_DONE;
+
+    if (m->skip_target)
+        return;
 
     fprintf(m->file, "\n");
 }
@@ -118,6 +138,9 @@ void makefile_nam_cmd(struct makefile *m, const char *format, ...)
     assert(m->state == MAKEFILE_STATE_CMDS);
     m->state = MAKEFILE_STATE_CMDS;
 
+    if (m->skip_target)
+        return;
+
     fprintf(m->file, "\t@");
 
     va_start(args, NULL);
@@ -134,6 +157,9 @@ void makefile_add_cmd(struct makefile *m, const char *format, ...)
 
     assert(m->state == MAKEFILE_STATE_CMDS);
     m->state = MAKEFILE_STATE_CMDS;
+
+    if (m->skip_target)
+        return;
 
 #ifdef DEBUG
     fprintf(m->file, "\t");
@@ -152,6 +178,9 @@ void makefile_end_cmds(struct makefile *m)
 {
     assert(m->state == MAKEFILE_STATE_CMDS);
     m->state = MAKEFILE_STATE_NONE;
+
+    if (m->skip_target)
+        return;
 
     fprintf(m->file, "\n");
 }
