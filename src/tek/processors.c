@@ -1,6 +1,6 @@
 
 /*
- * Copyright (C) 2011 Daniel Dabbelt
+ * Copyright (C) 2011 Palmer Dabbelt
  *   <palmer@dabbelt.com>
  *
  * This file is part of tek.
