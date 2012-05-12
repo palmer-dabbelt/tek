@@ -292,6 +292,24 @@ void process(struct processor *p_uncast, const char *filename,
 
             makefile_end_cmds(m);
         }
+        else
+        {
+            makefile_create_target(m, stringlist_data(cur));
+
+            makefile_start_deps(m);
+            makefile_add_dep(m, stringlist_data(cur_short));
+            makefile_end_deps(m);
+
+            makefile_start_cmds(m);
+            makefile_nam_cmd(m, "echo -e \"GPLDAT\\t%s\"",
+                             stringlist_data(cur_short));
+            makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true",
+                             cachedir);
+            makefile_add_cmd(m, "cp \"%s\" \"%s\"",
+                             stringlist_data(cur_short),
+                             stringlist_data(cur));
+            makefile_end_cmds(m);
+        }
 
         cur = stringlist_next(cur);
         cur_short = stringlist_next(cur_short);
