@@ -48,6 +48,8 @@ struct processor *processor_imagemagick_search(void *context,
 
     if (string_ends_with(filename, ".png.pdf"))
         p = talloc(context, struct processor_imagemagick);
+    if (string_ends_with(filename, ".jpeg.pdf"))
+        p = talloc(context, struct processor_imagemagick);
 
     if (p != NULL)
     {
