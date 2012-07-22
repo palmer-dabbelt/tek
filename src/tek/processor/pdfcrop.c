@@ -132,7 +132,8 @@ void process(struct processor *p_uncast, const char *filename,
     makefile_start_cmds(m);
     makefile_nam_cmd(m, "echo -e \"PDFCROP\\t%s\"", infile);
     makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
-    makefile_add_cmd(m, "pdfcrop \"%s\" \"%s\"", infile, filename);
+    makefile_add_cmd(m, "pdfcrop \"%s\" \"%s\" >& /dev/null",
+                     infile, filename);
     makefile_end_cmds(m);
 
     /* Cleans up all the memory allocated by this code. */
