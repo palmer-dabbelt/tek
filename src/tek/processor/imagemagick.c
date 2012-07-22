@@ -99,6 +99,7 @@ void process(struct processor *p_uncast, const char *filename,
     int cachedir_index;
     char *cachedir;
     char *infile;
+    char *cachename;
 
     /* We need access to the real structure, get it safely */
     p = talloc_get_type(p_uncast, struct processor_imagemagick);
@@ -125,16 +126,30 @@ void process(struct processor *p_uncast, const char *filename,
     TALLOC_FREE(cachedir);
     cachedir = talloc_strndup(c, filename, basename_len(filename));
 
+    cachename = talloc_asprintf(c, ".tek_cache/%s", infile);
+
     /* Creates the target to build the image */
     makefile_create_target(m, filename);
     makefile_start_deps(m);
-    makefile_add_dep(m, infile);
+    makefile_add_dep(m, cachename);
     makefile_end_deps(m);
 
     makefile_start_cmds(m);
     makefile_nam_cmd(m, "echo -e \"CONVERT\\t%s\"", infile);
     makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
     makefile_add_cmd(m, "convert \"%s\" \"%s\"", infile, filename);
+    makefile_end_cmds(m);
+
+    /* This one is necessary for pandoc. */
+    makefile_create_target(m, cachename);
+    makefile_start_deps(m);
+    makefile_add_dep(m, infile);
+    makefile_end_deps(m);
+
+    makefile_start_cmds(m);
+    makefile_nam_cmd(m, "echo -e \"IMGCP\\t%s\"", infile);
+    makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
+    makefile_add_cmd(m, "cp \"%s\" \"%s\"", infile, cachename);
     makefile_end_cmds(m);
 
     /* Cleans up all the memory allocated by this code. */

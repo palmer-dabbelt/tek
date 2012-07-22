@@ -114,7 +114,9 @@ void process(struct processor *p_uncast, const char *filename_input,
     char *cache_dir;
     char *pp_file;
     char *pdf_file;
+    char *html_file;
     char *out_file;
+    char *out_file_html;
     struct processor_latex *p;
     FILE *inf;
     char *buf;
@@ -122,6 +124,7 @@ void process(struct processor *p_uncast, const char *filename_input,
     char *filename;
     char *phonydeps;
     char *biblio;
+    char *dir_of_file;
 
     phonydeps = NULL;
 
@@ -150,6 +153,9 @@ void process(struct processor *p_uncast, const char *filename_input,
     }
     strcat(cache_dir, CACHE_DIR);
 
+    /* The directory this file resides in */
+    dir_of_file = talloc_strndup(c, filename, basename_len(filename));
+
     /* The preprocessed file */
     pp_file = talloc_array(c, char,
                            cache_dir_size + strlen(restname(filename)) + 2);
@@ -161,11 +167,13 @@ void process(struct processor *p_uncast, const char *filename_input,
     /* The output file from latex */
     pdf_file = talloc_strdup(c, pp_file);
     pdf_file[strlen(pdf_file) - 4] = '\0';
+    html_file = talloc_asprintf(c, "%s.html", pdf_file);
     strcat(pdf_file, ".pdf");
 
     /* The actual output file the user wants */
     out_file = talloc_strdup(c, filename);
     out_file[strlen(out_file) - 4] = '\0';
+    out_file_html = talloc_asprintf(c, "%s.html", out_file);
     strcat(out_file, ".pdf");
 
     /* First, we preprocess the .tex file */
@@ -440,6 +448,21 @@ void process(struct processor *p_uncast, const char *filename_input,
                          cache_dir, restname(pp_file), restname(pp_file));
         makefile_add_cmd(m, "cp \"%s\" \"%s\"", pdf_file, out_file);
         makefile_end_cmds(m);
+
+        /* Uses pandoc to convert this file to HTML. */
+        makefile_create_target(m, out_file_html);
+        makefile_start_deps(m);
+        makefile_add_dep(m, out_file);
+        makefile_end_deps(m);
+        makefile_start_cmds(m);
+        makefile_nam_cmd(m, "echo -e \"PANDOC\\t%s\"", filename);
+        makefile_add_cmd(m,
+                         "cd \"%s\" ; "
+                         "pandoc --self-contained -s \"%s\" -o \"%s\" "
+                         "--latexmathml",
+                         cache_dir, restname(pp_file), restname(html_file));
+        makefile_add_cmd(m, "cp \"%s\" \"%s\"", html_file, out_file_html);
+        makefile_end_cmds(m);
     }
     else
     {
@@ -457,11 +480,15 @@ void process(struct processor *p_uncast, const char *filename_input,
 
     /* The only real file we added was the output pdf */
     if (p->nopdf == false)
+    {
         makefile_add_all(m, out_file);
+        makefile_add_all(m, html_file);
+    }
 
     /* But we did also create a whole bunch of temporary files (potentially, at
      * least. */
     makefile_add_clean(m, out_file);
+    makefile_add_clean(m, html_file);
     makefile_add_cleancache(m, cache_dir);
 
     /* Cleans up all the memory allocated by this code. */
