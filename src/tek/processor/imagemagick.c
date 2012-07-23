@@ -126,7 +126,7 @@ void process(struct processor *p_uncast, const char *filename,
     TALLOC_FREE(cachedir);
     cachedir = talloc_strndup(c, filename, basename_len(filename));
 
-    cachename = talloc_asprintf(c, ".tek_cache/%s", infile);
+    cachename = talloc_strndup(c, filename, strlen(filename) - 4);
 
     /* Creates the target to build the image */
     makefile_create_target(m, filename);
