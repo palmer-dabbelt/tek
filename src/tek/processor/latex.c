@@ -113,6 +113,7 @@ void process(struct processor *p_uncast, const char *filename_input,
     int cache_dir_size;
     char *cache_dir;
     char *pp_file;
+    char *pp_file_html;
     char *pdf_file;
     char *html_file;
     char *out_file;
@@ -163,6 +164,7 @@ void process(struct processor *p_uncast, const char *filename_input,
     strcat(pp_file, cache_dir);
     strcat(pp_file, "/");
     strcat(pp_file, restname(filename));
+    pp_file_html = talloc_asprintf(c, "%s-html.tex", pp_file);
 
     /* The output file from latex */
     pdf_file = talloc_strdup(c, pp_file);
@@ -189,6 +191,19 @@ void process(struct processor *p_uncast, const char *filename_input,
         makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true",
                          cache_dir);
         makefile_add_cmd(m, "texpp -i \"%s\" -o \"%s\"", filename, pp_file);
+        makefile_end_cmds(m);
+
+        makefile_create_target(m, pp_file_html);
+        makefile_start_deps(m);
+        makefile_add_dep(m, filename);
+        makefile_end_deps(m);
+
+        makefile_start_cmds(m);
+        makefile_nam_cmd(m, "echo -e \"PPHTML\\t%s\"", filename);
+        makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true",
+                         cache_dir);
+        makefile_add_cmd(m, "texpp-html -i \"%s\" -o \"%s\"", filename,
+                         pp_file_html);
         makefile_end_cmds(m);
     }
     /* Then, we use latex to process the PDF.  Here is where we scan the
@@ -453,6 +468,7 @@ void process(struct processor *p_uncast, const char *filename_input,
         makefile_create_target(m, out_file_html);
         makefile_start_deps(m);
         makefile_add_dep(m, out_file);
+        makefile_add_dep(m, pp_file_html);
         makefile_end_deps(m);
         makefile_start_cmds(m);
         makefile_nam_cmd(m, "echo -e \"PANDOC\\t%s\"", filename);
@@ -460,7 +476,8 @@ void process(struct processor *p_uncast, const char *filename_input,
                          "cd \"%s\" ; "
                          "pandoc --self-contained -s \"%s\" -o \"%s\" "
                          "--latexmathml",
-                         cache_dir, restname(pp_file), restname(html_file));
+                         cache_dir,
+                         restname(pp_file_html), restname(html_file));
         makefile_add_cmd(m, "cp \"%s\" \"%s\"", html_file, out_file_html);
         makefile_end_cmds(m);
     }
@@ -482,13 +499,13 @@ void process(struct processor *p_uncast, const char *filename_input,
     if (p->nopdf == false)
     {
         makefile_add_all(m, out_file);
-        makefile_add_all(m, html_file);
+        makefile_add_all(m, out_file_html);
     }
 
     /* But we did also create a whole bunch of temporary files (potentially, at
      * least. */
     makefile_add_clean(m, out_file);
-    makefile_add_clean(m, html_file);
+    makefile_add_clean(m, out_file_html);
     makefile_add_cleancache(m, cache_dir);
 
     /* Cleans up all the memory allocated by this code. */

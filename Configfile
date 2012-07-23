@@ -10,6 +10,9 @@ SOURCES     += tek/main.c
 BINARIES    += texpp
 SOURCES     += texpp/main.c
 
+BINARIES    += texpp-html
+SOURCES     += texpp-html/main.c
+
 BINARIES    += gnuplotpp
 SOURCES     += gnuplotpp/main.c
 
