@@ -5,13 +5,13 @@ COMPILEOPTS += -Werror
 BINARIES    += tek
 LINKOPTS    += `pkg-config talloc --libs`
 COMPILEOPTS += `pkg-config talloc --cflags`
-SOURCES	    += tek/main.c
+SOURCES     += tek/main.c
 
 BINARIES    += texpp
-SOURCES	    += texpp/main.c
+SOURCES     += texpp/main.c
 
 BINARIES    += gnuplotpp
-SOURCES	    += gnuplotpp/main.c
+SOURCES     += gnuplotpp/main.c
 
 BINARIES    += texstrip
-SOURCES	    += texstrip/main.c
+SOURCES     += texstrip/main.c
