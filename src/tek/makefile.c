@@ -65,7 +65,7 @@ void makefile_create_target(struct makefile *m, const char *name)
         tmp = talloc_strdup(m, name);
         stringlist_add(m->every_target, tmp);
         talloc_unlink(m, tmp);
-        fprintf(m->file, "%s: Makefile", name);
+        fprintf(m->file, "%s:", name);
         m->skip_target = false;
     }
 }
