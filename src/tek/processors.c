@@ -27,6 +27,7 @@
 #include "processor/pdfcrop.h"
 #include "processor/stex.h"
 #include "processor/source.h"
+#include "processor/xfig.h"
 
 #include <stdlib.h>
 
@@ -70,6 +71,10 @@ struct processor *processors_search(void *context, const char *filename)
         return p;
 
     p = processor_source_search(context, filename);
+    if (p != NULL)
+        return p;
+
+    p = processor_xfig_search(context, filename);
     if (p != NULL)
         return p;
 
