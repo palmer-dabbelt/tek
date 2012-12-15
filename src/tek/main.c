@@ -23,11 +23,13 @@
 #include <stdio.h>
 #include <talloc.h>
 #include <assert.h>
+#include <string.h>
 
 #include "clopts.h"
 #include "stack.h"
 #include "processors.h"
 #include "makefile.h"
+#include "global.h"
 
 int main(int argc, char **argv)
 {
@@ -59,6 +61,14 @@ int main(int argc, char **argv)
     context_argstrdup = talloc_init("main(): argv strdup");
     context_pop = talloc_init("main(): pop");
     context_search = talloc_init("main(): search");
+
+    /* Checks for command-line arguments */
+    if (argc > 1 && strcmp(argv[1], "--with-html") == 0)
+    {
+        global_with_html = true;
+        argc--;
+        argv++;
+    }
 
     /* No arguments means find all possible tex files */
     if (argc == 1)

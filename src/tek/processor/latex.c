@@ -25,6 +25,8 @@
 #include <stdbool.h>
 #include <talloc.h>
 
+#include "../global.h"
+
 static bool string_ends_with(const char *string, const char *end);
 static int basename_len(const char *string);
 static const char *restname(const char *string);
@@ -193,18 +195,21 @@ void process(struct processor *p_uncast, const char *filename_input,
         makefile_add_cmd(m, "texpp -i \"%s\" -o \"%s\"", filename, pp_file);
         makefile_end_cmds(m);
 
-        makefile_create_target(m, pp_file_html);
-        makefile_start_deps(m);
-        makefile_add_dep(m, filename);
-        makefile_end_deps(m);
+        if (global_with_html)
+        {
+            makefile_create_target(m, pp_file_html);
+            makefile_start_deps(m);
+            makefile_add_dep(m, filename);
+            makefile_end_deps(m);
 
-        makefile_start_cmds(m);
-        makefile_nam_cmd(m, "echo -e \"PPHTML\\t%s\"", filename);
-        makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true",
-                         cache_dir);
-        makefile_add_cmd(m, "texpp-html -i \"%s\" -o \"%s\"", filename,
-                         pp_file_html);
-        makefile_end_cmds(m);
+            makefile_start_cmds(m);
+            makefile_nam_cmd(m, "echo -e \"PPHTML\\t%s\"", filename);
+            makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true",
+                             cache_dir);
+            makefile_add_cmd(m, "texpp-html -i \"%s\" -o \"%s\"", filename,
+                             pp_file_html);
+            makefile_end_cmds(m);
+        }
     }
     /* Then, we use latex to process the PDF.  Here is where we scan the
      * file for dependencies. */
@@ -464,22 +469,33 @@ void process(struct processor *p_uncast, const char *filename_input,
         makefile_add_cmd(m, "cp \"%s\" \"%s\"", pdf_file, out_file);
         makefile_end_cmds(m);
 
-        /* Uses pandoc to convert this file to HTML. */
-        makefile_create_target(m, out_file_html);
-        makefile_start_deps(m);
-        makefile_add_dep(m, out_file);
-        makefile_add_dep(m, pp_file_html);
-        makefile_end_deps(m);
-        makefile_start_cmds(m);
-        makefile_nam_cmd(m, "echo -e \"PANDOC\\t%s\"", filename);
-        makefile_add_cmd(m,
-                         "cd \"%s\" ; "
-                         "pandoc --self-contained -s \"%s\" -o \"%s\" "
-                         "--latexmathml",
-                         cache_dir,
-                         restname(pp_file_html), restname(html_file));
-        makefile_add_cmd(m, "cp \"%s\" \"%s\"", html_file, out_file_html);
-        makefile_end_cmds(m);
+        if (global_with_html)
+        {
+            /* Uses pandoc to convert this file to HTML. */
+            makefile_create_target(m, out_file_html);
+            makefile_start_deps(m);
+            makefile_add_dep(m, out_file);
+            makefile_add_dep(m, pp_file_html);
+            makefile_end_deps(m);
+            makefile_start_cmds(m);
+            makefile_nam_cmd(m, "echo -e \"HTML\\t%s\"", filename);
+            makefile_add_cmd(m,
+                             "cd \"%s\" && "
+                             "yes '' | mk4ht xhmlatex \"%s\" >& /dev/null",
+                             cache_dir, restname(pp_file_html));
+            makefile_add_cmd(m, "cd \"%s\" && "
+                             "cp `basename \"%s\" .tex`.html \"%s\" &&"
+                             "echo '<style type=\"text/css\">' >> \"%s\" &&"
+                             "cat `basename \"%s\" .tex`.css >> \"%s\" &&"
+                             "echo '</style>' >> \"%s\"",
+                             cache_dir,
+                             restname(pp_file_html), restname(out_file_html),
+                             restname(out_file_html),
+                             restname(pp_file_html), restname(out_file_html),
+                             restname(out_file_html));
+            makefile_add_cmd(m, "cp \"%s\" \"%s\"", html_file, out_file_html);
+            makefile_end_cmds(m);
+        }
     }
     else
     {
@@ -499,7 +515,8 @@ void process(struct processor *p_uncast, const char *filename_input,
     if (p->nopdf == false)
     {
         makefile_add_all(m, out_file);
-        makefile_add_all(m, out_file_html);
+        if (global_with_html)
+            makefile_add_all(m, out_file_html);
     }
 
     /* But we did also create a whole bunch of temporary files (potentially, at
