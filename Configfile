@@ -1,6 +1,7 @@
 LANGUAGES   += c
 COMPILEOPTS += -Wall
 COMPILEOPTS += -Werror
+COMPILEOPTS += -DTEK_VERSION=\"0.1.0 git\"
 
 BINARIES    += tek
 LINKOPTS    += `pkg-config talloc --libs`

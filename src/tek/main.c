@@ -70,6 +70,13 @@ int main(int argc, char **argv)
         argv++;
     }
 
+    if (argc > 1 && strcmp(argv[1], "--version") == 0)
+    {
+	printf("tek %s\n", TEK_VERSION);
+        argc--;
+        argv++;
+    }
+
     /* No arguments means find all possible tex files */
     if (argc == 1)
     {
