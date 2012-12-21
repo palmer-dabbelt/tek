@@ -1,7 +1,7 @@
 LANGUAGES   += c
 COMPILEOPTS += -Wall
 COMPILEOPTS += -Werror
-COMPILEOPTS += -DTEK_VERSION=\"0.1.1\"
+COMPILEOPTS += -DTEK_VERSION=\"0.1.2\"
 
 BINARIES    += tek
 LINKOPTS    += `pkg-config talloc --libs`
