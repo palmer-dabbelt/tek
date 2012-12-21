@@ -26,6 +26,19 @@
 
 #define BUF_SIZE 10240
 
+static int string_index(const char *a, const char *b)
+{
+    int i;
+
+    for (i = 0; i < strlen(a); i++)
+    {
+        if (strncmp(a + i, b, strlen(b)) == 0)
+            return i;
+    }
+
+    return -1;
+}
+
 int main(int argc, char **argv)
 {
     int i;
@@ -77,6 +90,29 @@ int main(int argc, char **argv)
         else if (strncmp(buf, "\\end{document", strlen("\\end{document")) ==
                  0)
             continue;
+        else if (string_index(buf, "\\includegraphics") != -1)
+        {
+            int index;
+
+            /* Removes all the optional agruments */
+            index = string_index(buf, "\\includegraphics");
+            index += strlen("\\includegraphics");
+            while ((buf[index] != '}') && (buf[index] != '\0'))
+                index++;
+
+            /* Ensures that the code is properly formed */
+            if (buf[index] == '\0')
+            {
+                fprintf(stderr, "Bad includegraphics\n");
+                return 1;
+            }
+
+            /* Appends ".pdf" to the filename */
+            if (fwrite(buf, 1, index, otf) != index)
+                abort();
+            fputs(".pdf", otf);
+            fputs(buf + index, otf);
+        }
         else
             fputs(buf, otf);
     }
