@@ -72,7 +72,7 @@ int main(int argc, char **argv)
 
     if (argc > 1 && strcmp(argv[1], "--version") == 0)
     {
-	printf("tek %s\n", TEK_VERSION);
+        printf("tek %s\n", TEK_VERSION);
         argc--;
         argv++;
     }
