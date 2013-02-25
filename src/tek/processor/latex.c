@@ -127,7 +127,6 @@ void process(struct processor *p_uncast, const char *filename_input,
     char *filename;
     char *phonydeps;
     char *biblio;
-    char *dir_of_file;
 
     phonydeps = NULL;
 
@@ -157,7 +156,7 @@ void process(struct processor *p_uncast, const char *filename_input,
     strcat(cache_dir, CACHE_DIR);
 
     /* The directory this file resides in */
-    dir_of_file = talloc_strndup(c, filename, basename_len(filename));
+    talloc_strndup(c, filename, basename_len(filename));
 
     /* The preprocessed file */
     pp_file = talloc_array(c, char,
