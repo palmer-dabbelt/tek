@@ -235,7 +235,9 @@ void process(struct processor *p_uncast, const char *filename,
     makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
     makefile_add_cmd(m, "cd \"%s\" ; gnuplot < \"%s\" > \"%s\".ps",
                      cachedir, restname(pp_file), restname(pp_file));
-    makefile_add_cmd(m, "ps2pdf \"%s\".ps \"%s\"", pp_file, filename);
+    makefile_add_cmd(m, "ps2pdf \"%s\".ps \"%s\"uc.pdf", pp_file, filename);
+    makefile_add_cmd(m, "pdfcrop \"%s\"uc.pdf \"%s\" >& /dev/null",
+                     filename, filename);
     makefile_add_cmd(m, "rm \"%s\".ps", pp_file);
     makefile_end_cmds(m);
 
