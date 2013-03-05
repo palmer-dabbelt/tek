@@ -28,6 +28,7 @@
 #include "processor/stex.h"
 #include "processor/source.h"
 #include "processor/xfig.h"
+#include "processor/pdfcopy.h"
 
 #include <stdlib.h>
 
@@ -75,6 +76,10 @@ struct processor *processors_search(void *context, const char *filename)
         return p;
 
     p = processor_xfig_search(context, filename);
+    if (p != NULL)
+        return p;
+
+    p = processor_pdfcopy_search(context, filename);
     if (p != NULL)
         return p;
 
