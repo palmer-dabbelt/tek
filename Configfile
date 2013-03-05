@@ -6,7 +6,7 @@ COMPILEOPTS += -DTEK_VERSION=\"0.1.2\"
 BINARIES    += tek
 LINKOPTS    += `ppkg-config --optional --have TALLOC talloc --libs`
 COMPILEOPTS += `ppkg-config --optional --have TALLOC talloc --cflags`
-COMPILEOPTS += -Iextern/
+COMPILEOPTS += -Isrc/extern/
 SOURCES     += tek/main.c
 
 BINARIES    += texpp
