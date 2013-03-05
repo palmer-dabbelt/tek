@@ -23,7 +23,12 @@
 
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef HAVE_TALLOC
 #include <talloc.h>
+#else
+#include "extern/talloc.h"
+#endif
 
 struct stringlist *stringlist_new(void *context)
 {

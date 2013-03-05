@@ -23,10 +23,15 @@
 
 #include <string.h>
 #include <stdbool.h>
-#include <talloc.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <ctype.h>
+
+#ifdef HAVE_TALLOC
+#include <talloc.h>
+#else
+#include "extern/talloc.h"
+#endif
 
 static bool string_ends_with(const char *string, const char *end);
 

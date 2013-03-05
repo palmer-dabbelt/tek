@@ -23,7 +23,12 @@
 
 #include <string.h>
 #include <stdbool.h>
+
+#ifdef HAVE_TALLOC
 #include <talloc.h>
+#else
+#include "extern/talloc.h"
+#endif
 
 #include "../global.h"
 

@@ -21,7 +21,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <talloc.h>
 #include <assert.h>
 #include <string.h>
 
@@ -30,6 +29,12 @@
 #include "processors.h"
 #include "makefile.h"
 #include "global.h"
+
+#ifdef HAVE_TALLOC
+#include <talloc.h>
+#else
+#include "extern/talloc.h"
+#endif
 
 int main(int argc, char **argv)
 {

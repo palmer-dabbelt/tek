@@ -21,7 +21,11 @@
 
 #include "clopts.h"
 
+#ifdef HAVE_TALLOC
 #include <talloc.h>
+#else
+#include "extern/talloc.h"
+#endif
 
 struct clopts *clopts_new(int argc, char **argv)
 {

@@ -23,7 +23,12 @@
 
 #include <string.h>
 #include <stdbool.h>
+
+#ifdef HAVE_TALLOC
 #include <talloc.h>
+#else
+#include "extern/talloc.h"
+#endif
 
 static bool string_ends_with(const char *string, const char *end);
 static int basename_len(const char *string);

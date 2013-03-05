@@ -21,8 +21,13 @@
 
 #include "stack.h"
 
-#include <talloc.h>
 #include <assert.h>
+
+#ifdef HAVE_TALLOC
+#include <talloc.h>
+#else
+#include "extern/talloc.h"
+#endif
 
 struct stack *stack_new(struct clopts *o)
 {
