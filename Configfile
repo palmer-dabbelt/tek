@@ -4,8 +4,8 @@ COMPILEOPTS += -Werror
 COMPILEOPTS += -DTEK_VERSION=\"0.1.2\"
 
 BINARIES    += tek
-LINKOPTS    += `pkg-config talloc --libs`
-COMPILEOPTS += `pkg-config talloc --cflags`
+LINKOPTS    += `ppkg-config talloc --libs`
+COMPILEOPTS += `ppkg-config talloc --cflags`
 SOURCES     += tek/main.c
 
 BINARIES    += texpp
