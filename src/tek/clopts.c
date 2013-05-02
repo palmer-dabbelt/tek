@@ -27,7 +27,8 @@
 #include "extern/talloc.h"
 #endif
 
-struct clopts *clopts_new(int argc, char **argv)
+struct clopts *clopts_new(int argc __attribute__ ((unused)),
+                          char **argv __attribute__ ((unused)))
 {
     struct clopts *o;
 

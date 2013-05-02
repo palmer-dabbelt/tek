@@ -28,7 +28,7 @@
 
 static int string_index(const char *a, const char *b)
 {
-    int i;
+    size_t i;
 
     for (i = 0; i < strlen(a); i++)
     {
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
             continue;
         else if (string_index(buf, "\\includegraphics") != -1)
         {
-            int index;
+            size_t index;
 
             /* Removes all the optional agruments */
             index = string_index(buf, "\\includegraphics");

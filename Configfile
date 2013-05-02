@@ -1,6 +1,8 @@
 LANGUAGES   += c
 COMPILEOPTS += -Wall
+COMPILEOPTS += -Wextra
 COMPILEOPTS += -Werror
+COMPILEOPTS += -Wno-unused-parameter
 COMPILEOPTS += -DTEK_VERSION=\"0.1.3\"
 
 BINARIES    += tek

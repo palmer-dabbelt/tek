@@ -83,7 +83,7 @@ int basename_len(const char *string)
 
 int string_index(const char *a, const char *b)
 {
-    int i;
+    size_t i;
 
     for (i = 0; i < strlen(a); i++)
     {
