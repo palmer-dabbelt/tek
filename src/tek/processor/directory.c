@@ -57,8 +57,7 @@ struct processor *processor_directory_search(void *context,
         if ((strlen(filename) == 0) || (S_ISDIR(statbuf.st_mode)))
             p = talloc(context, struct processor_directory);
 
-    if (p != NULL)
-    {
+    if (p != NULL) {
         p->p.name = talloc_reference(p, p_name);
         p->p.process = &process;
     }
@@ -96,8 +95,7 @@ void process(struct processor *p_uncast, const char *filename,
     exclude_filename_size = strlen(filename) + strlen(".tekignore") + 10;
     exclude_filename = talloc_array(c, char, exclude_filename_size);
     exclude_filename[0] = '\0';
-    if (strlen(filename) > 0)
-    {
+    if (strlen(filename) > 0) {
         strcat(exclude_filename, filename);
         strcat(exclude_filename, "/");
     }
@@ -105,16 +103,14 @@ void process(struct processor *p_uncast, const char *filename,
 
     exclude_file = NULL;
     exclude_file = fopen(exclude_filename, "r");
-    if (exclude_file != NULL)
-    {
+    if (exclude_file != NULL) {
         char *buf;
         int buf_size;
 
         buf_size = 10240;
         buf = talloc_array(c, char, buf_size);
 
-        while (fgets(buf, buf_size, exclude_file) != NULL)
-        {
+        while (fgets(buf, buf_size, exclude_file) != NULL) {
             while ((strlen(buf) > 0) && (isspace(buf[strlen(buf) - 1])))
                 buf[strlen(buf) - 1] = '\0';
 
@@ -131,8 +127,7 @@ void process(struct processor *p_uncast, const char *filename,
     distclean_filename_size = strlen(filename) + strlen("Makefile") + 10;
     distclean_filename = talloc_array(c, char, distclean_filename_size);
     distclean_filename[0] = '\0';
-    if (strlen(filename) > 0)
-    {
+    if (strlen(filename) > 0) {
         strcat(distclean_filename, filename);
         strcat(distclean_filename, "/");
     }
@@ -146,8 +141,7 @@ void process(struct processor *p_uncast, const char *filename,
     else
         dip = opendir(".");
 
-    while ((dit = readdir(dip)) != NULL)
-    {
+    while ((dit = readdir(dip)) != NULL) {
         struct stat statbuf;
         char *longname;
         int longname_size;
@@ -161,8 +155,7 @@ void process(struct processor *p_uncast, const char *filename,
         longname_size = strlen(filename) + strlen(dit->d_name) + 3;
         longname = talloc_array(c, char, longname_size);
         longname[0] = '\0';
-        if (strlen(filename) > 0)
-        {
+        if (strlen(filename) > 0) {
             strcat(longname, filename);
             strcat(longname, "/");
         }

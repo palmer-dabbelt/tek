@@ -68,31 +68,26 @@ int main(int argc, char **argv)
     context_search = talloc_init("main(): search");
 
     /* Checks for command-line arguments */
-    if (argc > 1 && strcmp(argv[1], "--with-html") == 0)
-    {
+    if (argc > 1 && strcmp(argv[1], "--with-html") == 0) {
         global_with_html = true;
         argc--;
         argv++;
     }
 
-    if (argc > 1 && strcmp(argv[1], "--version") == 0)
-    {
+    if (argc > 1 && strcmp(argv[1], "--version") == 0) {
         printf("tek %s\n", TEK_VERSION);
         argc--;
         argv++;
     }
 
     /* No arguments means find all possible tex files */
-    if (argc == 1)
-    {
+    if (argc == 1) {
         filename = talloc_strdup(context_argstrdup, "");
         stack_push(s, filename);
         talloc_unlink(context_argstrdup, filename);
     }
-    else
-    {
-        for (i = 1; i < argc; i++)
-        {
+    else {
+        for (i = 1; i < argc; i++) {
             filename = talloc_strdup(context_argstrdup, argv[i]);
             stack_push(s, filename);
             talloc_unlink(context_argstrdup, filename);
@@ -100,8 +95,7 @@ int main(int argc, char **argv)
     }
 
     /* Keeps parsing files until there aren't any files left. */
-    while ((filename = stack_pop(s, context_pop)) != NULL)
-    {
+    while ((filename = stack_pop(s, context_pop)) != NULL) {
         struct processor *proc;
 
 #ifdef DEBUG
@@ -110,8 +104,7 @@ int main(int argc, char **argv)
 
         /* Checks that a processor actually exists for this file type */
         proc = processors_search(context_search, filename);
-        if (proc == NULL)
-        {
+        if (proc == NULL) {
             fprintf(stderr, "No processor for '%s'\n", filename);
             talloc_unlink(context_pop, filename);
             exitvalue = 1;

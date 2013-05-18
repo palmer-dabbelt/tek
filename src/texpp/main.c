@@ -30,8 +30,7 @@ static int string_index(const char *a, const char *b)
 {
     size_t i;
 
-    for (i = 0; i < strlen(a); i++)
-    {
+    for (i = 0; i < strlen(a); i++) {
         if (strncmp(a + i, b, strlen(b)) == 0)
             return i;
     }
@@ -50,17 +49,13 @@ int main(int argc, char **argv)
     last = NULL;
     output = NULL;
 
-    for (i = 1; i < argc; i++)
-    {
-        if (last != NULL)
-        {
-            if (strcmp(last, "-o") == 0)
-            {
+    for (i = 1; i < argc; i++) {
+        if (last != NULL) {
+            if (strcmp(last, "-o") == 0) {
                 output = argv[i];
                 last = NULL;
             }
-            else if (strcmp(last, "-i") == 0)
-            {
+            else if (strcmp(last, "-i") == 0) {
                 input = argv[i];
                 last = NULL;
             }
@@ -69,8 +64,7 @@ int main(int argc, char **argv)
             last = argv[i];
     }
 
-    if ((input == NULL) || (output == NULL))
-    {
+    if ((input == NULL) || (output == NULL)) {
         fprintf(stderr, "Specify both -i and -o\n");
         return 1;
     }
@@ -78,15 +72,12 @@ int main(int argc, char **argv)
     inf = fopen(input, "r");
     otf = fopen(output, "w");
 
-    while (fgets(buf, BUF_SIZE, inf) != NULL)
-    {
-        if (string_index(buf, "\\usepackage{graphicx}") != -1)
-        {
+    while (fgets(buf, BUF_SIZE, inf) != NULL) {
+        if (string_index(buf, "\\usepackage{graphicx}") != -1) {
             fputs(buf, otf);
             fputs("\\usepackage{grffile}\n", otf);
         }
-        else if (string_index(buf, "\\includegraphics") != -1)
-        {
+        else if (string_index(buf, "\\includegraphics") != -1) {
             size_t index;
 
             /* Removes all the optional agruments */
@@ -96,8 +87,7 @@ int main(int argc, char **argv)
                 index++;
 
             /* Ensures that the code is properly formed */
-            if (buf[index] == '\0')
-            {
+            if (buf[index] == '\0') {
                 fprintf(stderr, "Bad includegraphics\n");
                 return 1;
             }
@@ -108,8 +98,7 @@ int main(int argc, char **argv)
             fputs(".pdf", otf);
             fputs(buf + index, otf);
         }
-        else
-        {
+        else {
             /* There was no special processor to process this file */
             fputs(buf, otf);
         }

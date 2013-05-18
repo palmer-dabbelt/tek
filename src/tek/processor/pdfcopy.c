@@ -54,8 +54,7 @@ struct processor *processor_pdfcopy_search(void *context,
     if (string_ends_with(filename, ".pdf.pdf"))
         p = talloc(context, struct processor_pdfcopy);
 
-    if (p != NULL)
-    {
+    if (p != NULL) {
         p->p.name = talloc_reference(p, p_name);
         p->p.process = &process;
     }
@@ -72,8 +71,7 @@ int basename_len(const char *string)
 {
     int i;
 
-    for (i = strlen(string) - 1; i >= 0; i--)
-    {
+    for (i = strlen(string) - 1; i >= 0; i--) {
         if (string[i] == '/')
             return i;
     }
@@ -85,8 +83,7 @@ int string_index(const char *a, const char *b)
 {
     size_t i;
 
-    for (i = 0; i < strlen(a); i++)
-    {
+    for (i = 0; i < strlen(a); i++) {
         if (strncmp(a + i, b, strlen(b)) == 0)
             return i;
     }
@@ -111,8 +108,7 @@ void process(struct processor *p_uncast, const char *filename,
 
     /* Finds the original filename */
     cachedir_index = string_index(filename, ".tek_cache/");
-    if (cachedir_index == -1)
-    {
+    if (cachedir_index == -1) {
         fprintf(stderr, "Bad cachedir for image\n");
         return;
     }

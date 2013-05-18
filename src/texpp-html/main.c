@@ -37,17 +37,13 @@ int main(int argc, char **argv)
     last = NULL;
     output = NULL;
 
-    for (i = 1; i < argc; i++)
-    {
-        if (last != NULL)
-        {
-            if (strcmp(last, "-o") == 0)
-            {
+    for (i = 1; i < argc; i++) {
+        if (last != NULL) {
+            if (strcmp(last, "-o") == 0) {
                 output = argv[i];
                 last = NULL;
             }
-            else if (strcmp(last, "-i") == 0)
-            {
+            else if (strcmp(last, "-i") == 0) {
                 input = argv[i];
                 last = NULL;
             }
@@ -56,8 +52,7 @@ int main(int argc, char **argv)
             last = argv[i];
     }
 
-    if ((input == NULL) || (output == NULL))
-    {
+    if ((input == NULL) || (output == NULL)) {
         fprintf(stderr, "Specify both -i and -o\n");
         return 1;
     }

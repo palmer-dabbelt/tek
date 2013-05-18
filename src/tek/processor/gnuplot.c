@@ -57,8 +57,7 @@ struct processor *processor_gnuplot_search(void *context,
     if (string_ends_with(filename, ".gnuplot.pdf"))
         p = talloc(context, struct processor_gnuplot);
 
-    if (p != NULL)
-    {
+    if (p != NULL) {
         p->p.name = talloc_reference(p, p_name);
         p->p.process = &process;
     }
@@ -75,8 +74,7 @@ int basename_len(const char *string)
 {
     int i;
 
-    for (i = strlen(string) - 1; i >= 0; i--)
-    {
+    for (i = strlen(string) - 1; i >= 0; i--) {
         if (string[i] == '/')
             return i;
     }
@@ -96,8 +94,7 @@ int string_index(const char *a, const char *b)
 {
     size_t i;
 
-    for (i = 0; i < strlen(a); i++)
-    {
+    for (i = 0; i < strlen(a); i++) {
         if (strncmp(a + i, b, strlen(b)) == 0)
             return i;
     }
@@ -128,8 +125,7 @@ void process(struct processor *p_uncast, const char *filename,
 
     /* Finds the original filename */
     cachedir_index = string_index(filename, ".tek_cache/");
-    if (cachedir_index == -1)
-    {
+    if (cachedir_index == -1) {
         fprintf(stderr, "Bad cachedir for image\n");
         return;
     }
@@ -171,10 +167,8 @@ void process(struct processor *p_uncast, const char *filename,
     buf_size = 10240;
     buf = talloc_array(c, char, buf_size);
     inf = fopen(infile, "r");
-    while (fgets(buf, buf_size, inf) != NULL)
-    {
-        if (string_index(buf, ".dat\"") != -1)
-        {
+    while (fgets(buf, buf_size, inf) != NULL) {
+        if (string_index(buf, ".dat\"") != -1) {
             int index;
             char *included_name;
             char *full_path;
@@ -188,8 +182,7 @@ void process(struct processor *p_uncast, const char *filename,
                 index--;
 
             /* Ensures that the code is properly formed */
-            if (buf[index] == '\0')
-            {
+            if (buf[index] == '\0') {
                 fprintf(stderr, "Bad dat file\n");
                 continue;
             }
@@ -206,8 +199,7 @@ void process(struct processor *p_uncast, const char *filename,
                 strlen(included_name) + basename_len(filename) + 3;
             full_path = talloc_array(c, char, full_path_size);
             full_path[0] = '\0';
-            if (basename_len(infile) != 0)
-            {
+            if (basename_len(infile) != 0) {
                 strncat(full_path, infile, basename_len(infile));
                 strcat(full_path, "/");
             }
@@ -249,8 +241,7 @@ void process(struct processor *p_uncast, const char *filename,
     /* There were (potentially) some dependencies */
     cur = stringlist_start(deps);
     cur_short = stringlist_start(deps_short);
-    while (stringlist_notend(cur) && stringlist_notend(cur_short))
-    {
+    while (stringlist_notend(cur) && stringlist_notend(cur_short)) {
         char *buf;
         int buf_size;
 
@@ -261,8 +252,7 @@ void process(struct processor *p_uncast, const char *filename,
         strcat(buf, ".proc");
 
         /* Checks if there is a preprocessor step */
-        if (access(buf, X_OK) == 0)
-        {
+        if (access(buf, X_OK) == 0) {
             makefile_create_target(m, stringlist_data(cur));
             makefile_start_deps(m);
             makefile_add_dep(m, buf);
@@ -283,14 +273,12 @@ void process(struct processor *p_uncast, const char *filename,
             makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true",
                              cachedir);
 
-            if (access(buf, R_OK))
-            {
+            if (access(buf, R_OK)) {
                 makefile_add_cmd(m, "\"./%s.proc\" > \"%s\"",
                                  stringlist_data(cur_short),
                                  stringlist_data(cur));
             }
-            else
-            {
+            else {
                 makefile_add_cmd(m, "\"./%s.proc\" < \"%s.in\" > \"%s\"",
                                  stringlist_data(cur_short),
                                  stringlist_data(cur_short),
@@ -299,8 +287,7 @@ void process(struct processor *p_uncast, const char *filename,
 
             makefile_end_cmds(m);
         }
-        else
-        {
+        else {
             makefile_create_target(m, stringlist_data(cur));
 
             makefile_start_deps(m);

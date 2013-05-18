@@ -42,14 +42,12 @@ struct stringlist *stringlist_new(void *context)
 
 void stringlist_add(struct stringlist *l, const char *to_add)
 {
-    if (l->head == NULL)
-    {
+    if (l->head == NULL) {
         l->head = talloc(l, struct stringlist_node);
         l->head->next = NULL;
         l->head->data = talloc_strdup(l->head, to_add);
     }
-    else
-    {
+    else {
         struct stringlist_node *cur;
 
         cur = l->head;
@@ -68,8 +66,7 @@ void stringlist_del(struct stringlist *l, const char *to_del)
 
     prev = NULL;
     cur = l->head;
-    while (cur != NULL)
-    {
+    while (cur != NULL) {
         if (strcmp(cur->data, to_del) == 0)
             break;
 
@@ -80,16 +77,14 @@ void stringlist_del(struct stringlist *l, const char *to_del)
     if (cur == NULL)
         return;
 
-    if (prev == NULL)
-    {
+    if (prev == NULL) {
         struct stringlist_node *old;
 
         old = l->head;
         l->head = old->next;
         talloc_free(old);
     }
-    else
-    {
+    else {
         struct stringlist_node *old;
 
         old = cur;
@@ -103,8 +98,7 @@ bool stringlist_include(struct stringlist *l, const char *s)
     struct stringlist_node *cur;
 
     cur = l->head;
-    while (cur != NULL)
-    {
+    while (cur != NULL) {
         if (strcmp(cur->data, s) == 0)
             return true;
 

@@ -59,12 +59,10 @@ void makefile_create_target(struct makefile *m, const char *name)
     assert(m->state == MAKEFILE_STATE_NONE);
     m->state = MAKEFILE_STATE_TARGET;
 
-    if (stringlist_include(m->every_target, name))
-    {
+    if (stringlist_include(m->every_target, name)) {
         m->skip_target = true;
     }
-    else
-    {
+    else {
         char *tmp;
 
         tmp = talloc_strdup(m, name);
@@ -198,8 +196,7 @@ int mf_destructor(struct makefile *m)
     makefile_create_target(m, "tek__all");
     makefile_start_deps(m);
     cur = stringlist_start(m->targets_all);
-    while (stringlist_notend(cur))
-    {
+    while (stringlist_notend(cur)) {
         makefile_add_dep(m, stringlist_data(cur));
         cur = stringlist_next(cur);
     }
@@ -214,8 +211,7 @@ int mf_destructor(struct makefile *m)
 
     makefile_start_cmds(m);
     cur = stringlist_start(m->targets_cleancache);
-    while (stringlist_notend(cur))
-    {
+    while (stringlist_notend(cur)) {
         makefile_add_cmd(m, "rm -rf \"%s\" >& /dev/null || true",
                          stringlist_data(cur));
         cur = stringlist_next(cur);
@@ -230,8 +226,7 @@ int mf_destructor(struct makefile *m)
 
     makefile_start_cmds(m);
     cur = stringlist_start(m->targets_clean);
-    while (stringlist_notend(cur))
-    {
+    while (stringlist_notend(cur)) {
         makefile_add_cmd(m, "rm \"%s\" >& /dev/null || true",
                          stringlist_data(cur));
         cur = stringlist_next(cur);
@@ -245,8 +240,7 @@ int mf_destructor(struct makefile *m)
     makefile_end_deps(m);
     makefile_start_cmds(m);
     cur = stringlist_start(m->targets_distclean);
-    while (stringlist_notend(cur))
-    {
+    while (stringlist_notend(cur)) {
         makefile_add_cmd(m, "rm \"%s\" >& /dev/null || true",
                          stringlist_data(cur));
         cur = stringlist_next(cur);

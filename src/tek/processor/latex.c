@@ -53,20 +53,17 @@ struct processor *processor_latex_search(void *context, const char *filename)
 
     p = NULL;
 
-    if (string_ends_with(filename, ".tex"))
-    {
+    if (string_ends_with(filename, ".tex")) {
         p = talloc(context, struct processor_latex);
         p->nopdf = false;
     }
 
-    if (string_ends_with(filename, ".tex-nopdf"))
-    {
+    if (string_ends_with(filename, ".tex-nopdf")) {
         p = talloc(context, struct processor_latex);
         p->nopdf = true;
     }
 
-    if (p != NULL)
-    {
+    if (p != NULL) {
         p->p.name = talloc_reference(p, p_name);
         p->p.process = &process;
     }
@@ -83,8 +80,7 @@ int basename_len(const char *string)
 {
     int i;
 
-    for (i = strlen(string) - 1; i >= 0; i--)
-    {
+    for (i = strlen(string) - 1; i >= 0; i--) {
         if (string[i] == '/')
             return i;
     }
@@ -104,8 +100,7 @@ int string_index(const char *a, const char *b)
 {
     size_t i;
 
-    for (i = 0; i < strlen(a); i++)
-    {
+    for (i = 0; i < strlen(a); i++) {
         if (strncmp(a + i, b, strlen(b)) == 0)
             return i;
     }
@@ -153,8 +148,7 @@ void process(struct processor *p_uncast, const char *filename_input,
     cache_dir_size = basename_len(filename) + strlen(CACHE_DIR) + 2;
     cache_dir = talloc_array(c, char, cache_dir_size);
     cache_dir[0] = '\0';
-    if (basename_len(filename) != 0)
-    {
+    if (basename_len(filename) != 0) {
         strncat(cache_dir, filename, basename_len(filename));
         strcat(cache_dir, "/");
     }
@@ -185,8 +179,7 @@ void process(struct processor *p_uncast, const char *filename_input,
     strcat(out_file, ".pdf");
 
     /* First, we preprocess the .tex file */
-    if (p->nopdf == false)
-    {
+    if (p->nopdf == false) {
         makefile_create_target(m, pp_file);
         makefile_start_deps(m);
         makefile_add_dep(m, filename);
@@ -199,8 +192,7 @@ void process(struct processor *p_uncast, const char *filename_input,
         makefile_add_cmd(m, "texpp -i \"%s\" -o \"%s\"", filename, pp_file);
         makefile_end_cmds(m);
 
-        if (global_with_html)
-        {
+        if (global_with_html) {
             makefile_create_target(m, pp_file_html);
             makefile_start_deps(m);
             makefile_add_dep(m, filename);
@@ -217,14 +209,12 @@ void process(struct processor *p_uncast, const char *filename_input,
     }
     /* Then, we use latex to process the PDF.  Here is where we scan the
      * file for dependencies. */
-    if (p->nopdf == false)
-    {
+    if (p->nopdf == false) {
         makefile_create_target(m, out_file);
         makefile_start_deps(m);
         makefile_add_dep(m, pp_file);
     }
-    else
-    {
+    else {
         phonydeps = talloc_array(c, char, strlen(pp_file) + 20);
         phonydeps[0] = '\0';
         strcat(phonydeps, pp_file);
@@ -238,10 +228,8 @@ void process(struct processor *p_uncast, const char *filename_input,
     buf_size = 10240;
     buf = talloc_array(c, char, buf_size);
     inf = fopen(filename, "r");
-    while (fgets(buf, buf_size, inf) != NULL)
-    {
-        if (string_index(buf, "\\input") != -1)
-        {
+    while (fgets(buf, buf_size, inf) != NULL) {
+        if (string_index(buf, "\\input") != -1) {
             int index;
             char *included_name;
             char *full_path;
@@ -251,8 +239,7 @@ void process(struct processor *p_uncast, const char *filename_input,
 
             /* Checks for comments */
             index = string_index(buf, "\\input");
-            if (string_index(buf, "%") != -1)
-            {
+            if (string_index(buf, "%") != -1) {
                 int cindex;
 
                 cindex = string_index(buf, "%");
@@ -270,8 +257,7 @@ void process(struct processor *p_uncast, const char *filename_input,
                 index++;
 
             /* Ensures that the code is properly formed */
-            if (buf[index] == '\0')
-            {
+            if (buf[index] == '\0') {
                 fprintf(stderr, "Bad input\n");
                 continue;
             }
@@ -287,8 +273,7 @@ void process(struct processor *p_uncast, const char *filename_input,
                 strlen(included_name) + basename_len(filename) + 3;
             full_path = talloc_array(c, char, full_path_size);
             full_path[0] = '\0';
-            if (basename_len(filename) != 0)
-            {
+            if (basename_len(filename) != 0) {
                 strncat(full_path, filename, basename_len(filename));
                 strcat(full_path, "/");
             }
@@ -308,8 +293,7 @@ void process(struct processor *p_uncast, const char *filename_input,
             talloc_unlink(full_path, c);
         }
 
-        if (string_index(buf, "\\includegraphics") != -1)
-        {
+        if (string_index(buf, "\\includegraphics") != -1) {
             int index;
             char *included_name;
             char *full_path;
@@ -319,8 +303,7 @@ void process(struct processor *p_uncast, const char *filename_input,
 
             /* Checks for comments */
             index = string_index(buf, "\\includegraphics");
-            if (string_index(buf, "%") != -1)
-            {
+            if (string_index(buf, "%") != -1) {
                 int cindex;
 
                 cindex = string_index(buf, "%");
@@ -338,8 +321,7 @@ void process(struct processor *p_uncast, const char *filename_input,
                 index++;
 
             /* Ensures that the code is properly formed */
-            if (buf[index] == '\0')
-            {
+            if (buf[index] == '\0') {
                 fprintf(stderr, "Bad includegraphics\n");
                 continue;
             }
@@ -355,8 +337,7 @@ void process(struct processor *p_uncast, const char *filename_input,
                 strlen(included_name) + basename_len(filename) + 3;
             full_path = talloc_array(c, char, full_path_size);
             full_path[0] = '\0';
-            if (basename_len(filename) != 0)
-            {
+            if (basename_len(filename) != 0) {
                 strncat(full_path, filename, basename_len(filename));
                 strcat(full_path, "/");
             }
@@ -377,8 +358,7 @@ void process(struct processor *p_uncast, const char *filename_input,
             talloc_unlink(full_path, c);
         }
 
-        if (string_index(buf, "\\bibliography{") != -1)
-        {
+        if (string_index(buf, "\\bibliography{") != -1) {
             int index;
             char *included_name;
             char *full_path;
@@ -386,8 +366,7 @@ void process(struct processor *p_uncast, const char *filename_input,
 
             /* Checks for comments */
             index = string_index(buf, "\\bibliography");
-            if (string_index(buf, "%") != -1)
-            {
+            if (string_index(buf, "%") != -1) {
                 int cindex;
 
                 cindex = string_index(buf, "%");
@@ -405,8 +384,7 @@ void process(struct processor *p_uncast, const char *filename_input,
                 index++;
 
             /* Ensures that the code is properly formed */
-            if (buf[index] == '\0')
-            {
+            if (buf[index] == '\0') {
                 fprintf(stderr, "Bad bibliography\n");
                 continue;
             }
@@ -422,8 +400,7 @@ void process(struct processor *p_uncast, const char *filename_input,
                 strlen(included_name) + basename_len(filename) + 9;
             full_path = talloc_array(c, char, full_path_size);
             full_path[0] = '\0';
-            if (basename_len(filename) != 0)
-            {
+            if (basename_len(filename) != 0) {
                 strncat(full_path, filename, basename_len(filename));
                 strcat(full_path, "/");
             }
@@ -437,14 +414,12 @@ void process(struct processor *p_uncast, const char *filename_input,
 
     TALLOC_FREE(buf);
 
-    if (p->nopdf == false)
-    {
+    if (p->nopdf == false) {
         makefile_end_deps(m);
 
         makefile_start_cmds(m);
         makefile_nam_cmd(m, "echo -e \"LATEX\\t%s\"", filename);
-        if (biblio != NULL)
-        {
+        if (biblio != NULL) {
             makefile_add_cmd(m, "cp \"%s\" \"%s\"", biblio, cache_dir);
             makefile_add_cmd(m,
                              "cd \"%s\" ; "
@@ -473,8 +448,7 @@ void process(struct processor *p_uncast, const char *filename_input,
         makefile_add_cmd(m, "cp \"%s\" \"%s\"", pdf_file, out_file);
         makefile_end_cmds(m);
 
-        if (global_with_html)
-        {
+        if (global_with_html) {
             /* Uses pandoc to convert this file to HTML. */
             makefile_create_target(m, out_file_html);
             makefile_start_deps(m);
@@ -501,10 +475,8 @@ void process(struct processor *p_uncast, const char *filename_input,
             makefile_end_cmds(m);
         }
     }
-    else
-    {
-        if (phonydeps != NULL)
-        {
+    else {
+        if (phonydeps != NULL) {
             makefile_end_deps(m);
 
             makefile_start_cmds(m);
@@ -516,8 +488,7 @@ void process(struct processor *p_uncast, const char *filename_input,
     }
 
     /* The only real file we added was the output pdf */
-    if (p->nopdf == false)
-    {
+    if (p->nopdf == false) {
         makefile_add_all(m, out_file);
         if (global_with_html)
             makefile_add_all(m, out_file_html);
