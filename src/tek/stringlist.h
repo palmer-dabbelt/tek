@@ -22,7 +22,6 @@
 #ifndef STRING_LIST_H
 #define STRING_LIST_H
 
-#include "error.h"
 #include <stdio.h>
 #include <stdbool.h>
 
