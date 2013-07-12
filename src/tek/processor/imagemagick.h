@@ -23,10 +23,15 @@
 #define PROCESSOR_IMAGEMAGICK_H
 
 #include "processor.h"
+#include <stdbool.h>
 
 struct processor_imagemagick
 {
     struct processor p;
+
+    /* Set to true when the image should be cropped after conversion
+     * to PDF. */
+    bool crop;
 };
 
 extern void processor_imagemagick_boot(void *context);

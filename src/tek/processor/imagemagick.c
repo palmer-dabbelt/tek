@@ -61,6 +61,15 @@ struct processor *processor_imagemagick_search(void *context,
     if (p != NULL) {
         p->p.name = talloc_reference(p, p_name);
         p->p.process = &process;
+
+        p->crop = false;
+
+        if (string_ends_with(filename, ".uncrop.png.pdf"))
+            p->crop = true;
+        if (string_ends_with(filename, ".uncrop.jpeg.pdf"))
+            p->crop = true;
+        if (string_ends_with(filename, ".uncrop.svg.pdf"))
+            p->crop = true;
     }
 
     return (struct processor *)p;
@@ -104,6 +113,7 @@ void process(struct processor *p_uncast, const char *filename,
     char *cachedir;
     char *infile;
     char *cachename;
+    char *outname;
 
     /* We need access to the real structure, get it safely */
     p = talloc_get_type(p_uncast, struct processor_imagemagick);
@@ -131,8 +141,15 @@ void process(struct processor *p_uncast, const char *filename,
 
     cachename = talloc_strndup(c, filename, strlen(filename) - 4);
 
+    /* Checks if we should crop the file, if so crop the file by
+     * passing it along to pdfcrop. */
+    outname = talloc_strdup(c, filename);
+    if (p->crop) {
+        outname = talloc_asprintf(c, "%s-tocrop.pdf", filename);
+    }
+
     /* Creates the target to build the image */
-    makefile_create_target(m, filename);
+    makefile_create_target(m, outname);
     makefile_start_deps(m);
     makefile_add_dep(m, cachename);
     makefile_end_deps(m);
@@ -140,8 +157,23 @@ void process(struct processor *p_uncast, const char *filename,
     makefile_start_cmds(m);
     makefile_nam_cmd(m, "echo -e \"CONVERT\\t%s\"", infile);
     makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
-    makefile_add_cmd(m, "convert \"%s\" \"%s\"", infile, filename);
+    makefile_add_cmd(m, "convert \"%s\" \"%s\"", infile, outname);
     makefile_end_cmds(m);
+
+    /* If we crop the file, then just copy it back in place. */
+    if (p->crop) {
+        makefile_create_target(m, filename);
+        makefile_start_deps(m);
+        makefile_add_dep(m, outname);
+        makefile_end_deps(m);
+
+        makefile_start_cmds(m);
+        makefile_nam_cmd(m, "echo -e \"IMCROP\\t%s\"", infile);
+        makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
+        makefile_add_cmd(m, "pdfcrop \"%s\" \"%s\" >& /dev/null",
+                         outname, filename);
+        makefile_end_cmds(m);
+    }
 
     /* This one is necessary for pandoc. */
     makefile_create_target(m, cachename);
