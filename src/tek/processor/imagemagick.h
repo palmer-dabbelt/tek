@@ -32,6 +32,10 @@ struct processor_imagemagick
     /* Set to true when the image should be cropped after conversion
      * to PDF. */
     bool crop;
+
+    /* Set to true when this is an image that should be converted
+     * using inkscape (as opposed to using ImageMagick). */
+    bool inkscape;
 };
 
 extern void processor_imagemagick_boot(void *context);
