@@ -16,7 +16,7 @@ then
 else
     CFLAGS="$CFLAGS -Isrc/extern/"
     CFLAGS="$CFLAGS -DNO_CONFIG_H"
-    extras="$SRCDIR/extern"
+    extras="$SRCDIR/extern/extern/talloc.c"
 fi
 
 CFLAGS="$CFLAGS -DTEK_VERSION=\"upconfigure\""
