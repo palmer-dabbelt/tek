@@ -111,7 +111,7 @@ void makefile_add_dep(struct makefile *m, const char *format, ...)
 
     fprintf(m->file, " ");
 
-    va_start(args, NULL);
+    va_start(args, format);
     vfprintf(m->file, format, args);
     va_end(args);
 }
@@ -146,7 +146,7 @@ void makefile_nam_cmd(struct makefile *m, const char *format, ...)
 
     fprintf(m->file, "\t@");
 
-    va_start(args, NULL);
+    va_start(args, format);
     vfprintf(m->file, format, args);
     va_end(args);
 
@@ -170,7 +170,7 @@ void makefile_add_cmd(struct makefile *m, const char *format, ...)
     fprintf(m->file, "\t@");
 #endif
 
-    va_start(args, NULL);
+    va_start(args, format);
     vfprintf(m->file, format, args);
     va_end(args);
 
