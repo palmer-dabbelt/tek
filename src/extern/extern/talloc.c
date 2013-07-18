@@ -31,8 +31,17 @@
   inspired by http://swapped.cc/halloc/
 */
 
-#include "replace.h"
 #include "talloc.h"
+
+#include <stdint.h>
+#include <stdbool.h>
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
+
+#define _PUBLIC_ 
+
+#define MIN(a, b) ((a) > (b) ? (b) : (a))
 
 #ifdef TALLOC_BUILD_VERSION_MAJOR
 #if (TALLOC_VERSION_MAJOR != TALLOC_BUILD_VERSION_MAJOR)
