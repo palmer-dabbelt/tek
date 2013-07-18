@@ -1,3 +1,6 @@
 Copyright 2012 Palmer Dabbelt <palmer@dabbelt.com>
 
 tek: A simple Makefile generator for LaTeX projects
+
+To without pconfigure install, run "./build.bash" and add "./bin/" to
+your PATH.
