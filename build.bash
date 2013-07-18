@@ -14,9 +14,14 @@ then
     CFLAGS="$CFLAGS $(pkg-config talloc --libs)"
     CFLAGS="$CFLAGS -DHAVE_TALLOC"
 else
-    CFLAGS="$CFLAGS -Isrc/extern/"
-    CFLAGS="$CFLAGS -DNO_CONFIG_H"
-    extras="$SRCDIR/extern/extern/talloc.c"
+    echo "This tool requires the 'talloc' library"
+    echo "   For Debian-based distros (e.g. Ubuntu):"
+    echo "      apt-get install libtalloc-dev"
+    echo "   For RPM-based distros (e.g. Fedora):"
+    echo "      yum install libtalloc-devel"
+    echo "   For OS X:"
+    echo "      port install talloc"
+    exit 1
 fi
 
 CFLAGS="$CFLAGS -DTEK_VERSION=\"upconfigure\""
@@ -24,7 +29,7 @@ CFLAGS="$CFLAGS -pipe -O2"
 
 mkdir -p "$BINDIR"
 
-ls "$SRCDIR" | grep -v "^extern$" | while read program
+ls "$SRCDIR" | while read program
 do
     find "$SRCDIR/$program" $extras -iname *.c | \
 	xargs cc $CFLAGS -o "$BINDIR/$program"
