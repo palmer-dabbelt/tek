@@ -39,7 +39,7 @@
 #include <string.h>
 #include <errno.h>
 
-#define _PUBLIC_ 
+#define _PUBLIC_
 
 #define MIN(a, b) ((a) > (b) ? (b) : (a))
 
