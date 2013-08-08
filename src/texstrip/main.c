@@ -75,6 +75,8 @@ int main(int argc, char **argv)
     while (fgets(buf, BUF_SIZE, inf) != NULL) {
         if (strncmp(buf, "\\documentclass{", strlen("\\documentclass{")) == 0)
             continue;
+        if (strncmp(buf, "\\documentclass[", strlen("\\documentclass[")) == 0)
+            continue;
         else if (strncmp(buf, "\\usepackage{", strlen("\\usepackage{")) == 0)
             continue;
         else if (strncmp(buf, "\\begin{docume", strlen("\\begin{docume")) ==
