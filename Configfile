@@ -3,7 +3,7 @@ COMPILEOPTS += -Wall
 COMPILEOPTS += -Wextra
 COMPILEOPTS += -Werror
 COMPILEOPTS += -Wno-unused-parameter
-COMPILEOPTS += -DTEK_VERSION=\"0.2.1\"
+COMPILEOPTS += -DTEK_VERSION=\"0.2.1-git\"
 
 BINARIES    += tek
 LINKOPTS    += `ppkg-config --optional --have TALLOC talloc --libs`
