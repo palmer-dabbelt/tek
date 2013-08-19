@@ -30,11 +30,11 @@ This tool requires the 'talloc' library
 Re-call this script with --allow-internal-talloc to enable an internal
 talloc library to be used.  This is NOT recommended.
 EOF
-
-        CFLAGS="$CFLAGS -Isrc/extern/"
-        CFLAGS="$CFLAGS -DNO_CONFIG_H"
-        extras="$SRCDIR/extern/extern/talloc.c"
     fi
+
+    CFLAGS="$CFLAGS -Isrc/extern/"
+    CFLAGS="$CFLAGS -DNO_CONFIG_H"
+    extras="$SRCDIR/extern/extern/talloc.c"
 fi
 
 CFLAGS="$CFLAGS -DTEK_VERSION=\"upconfigure\""
