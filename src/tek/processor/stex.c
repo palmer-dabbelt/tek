@@ -23,6 +23,7 @@
 
 #include <string.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 #ifdef HAVE_TALLOC
 #include <talloc.h>
@@ -99,6 +100,11 @@ void process(struct processor *p_uncast, const char *filename,
     char *cachedir;
     char *infile;
     char *texfile;
+    bool skip_recursive_deps;
+
+    /* By default we don't want to skip searching for recursive
+     * dependencies. */
+    skip_recursive_deps = false;
 
     /* We need access to the real structure, get it safely */
     p = talloc_get_type(p_uncast, struct processor_stex);
@@ -125,10 +131,43 @@ void process(struct processor *p_uncast, const char *filename,
     TALLOC_FREE(cachedir);
     cachedir = talloc_strndup(c, filename, basename_len(filename));
 
+    /* Check if there's an executable file that cooresponds to this
+     * .tex file, which means that we should run this executable to
+     * produce the text file. */
+    {
+        char *exefile;
+
+        exefile = talloc_asprintf(c, "%s.proc", infile);
+        if (access(exefile, X_OK) == 0) {
+            char *outfile;
+
+            outfile = talloc_asprintf(c, "%s.out", filename);
+            fprintf(stderr, "outfile: '%s'\n", outfile);
+
+            makefile_create_target(m, outfile);
+            makefile_start_deps(m);
+            makefile_add_dep(m, exefile);
+            makefile_end_deps(m);
+
+            makefile_start_cmds(m);
+            makefile_nam_cmd(m, "echo -e \"RUN\\t%s\"", exefile);
+            makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true",
+                             cachedir);
+            makefile_add_cmd(m, "./%s > %s", exefile, outfile);
+            makefile_end_cmds(m);
+
+            infile = outfile;
+            skip_recursive_deps = true;
+        }
+    }
+
+    fprintf(stderr, "infile: '%s'\n", infile);
+
     /* Creates the target to build the image */
     makefile_create_target(m, filename);
     makefile_start_deps(m);
-    makefile_add_dep(m, "%s-stexdeps", filename);
+    if (skip_recursive_deps == false)
+        makefile_add_dep(m, "%s-stexdeps", filename);
     makefile_add_dep(m, infile);
     makefile_end_deps(m);
 
@@ -140,13 +179,15 @@ void process(struct processor *p_uncast, const char *filename,
 
     /* We need to scan the .tex file for dependencies, this is kind of
      * just a hack to enable that. */
-    texfile = talloc_array(c, char, strlen(infile) + 10);
-    texfile[0] = '\0';
-    strcat(texfile, infile);
-    texfile[strlen(texfile) - 4] = '\0';
-    strcat(texfile, ".tex-nopdf");
-    stack_push(s, texfile);
-    talloc_unlink(texfile, c);
+    if (skip_recursive_deps == false) {
+        texfile = talloc_array(c, char, strlen(infile) + 10);
+        texfile[0] = '\0';
+        strcat(texfile, infile);
+        texfile[strlen(texfile) - 4] = '\0';
+        strcat(texfile, ".tex-nopdf");
+        stack_push(s, texfile);
+        talloc_unlink(texfile, c);
+    }
 
     /* Cleans up all the memory allocated by this code. */
     TALLOC_FREE(c);
