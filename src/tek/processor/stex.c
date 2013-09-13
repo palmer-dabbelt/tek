@@ -142,7 +142,6 @@ void process(struct processor *p_uncast, const char *filename,
             char *outfile;
 
             outfile = talloc_asprintf(c, "%s.out", filename);
-            fprintf(stderr, "outfile: '%s'\n", outfile);
 
             makefile_create_target(m, outfile);
             makefile_start_deps(m);
@@ -160,8 +159,6 @@ void process(struct processor *p_uncast, const char *filename,
             skip_recursive_deps = true;
         }
     }
-
-    fprintf(stderr, "infile: '%s'\n", infile);
 
     /* Creates the target to build the image */
     makefile_create_target(m, filename);
