@@ -79,6 +79,8 @@ int main(int argc, char **argv)
             continue;
         else if (strncmp(buf, "\\usepackage{", strlen("\\usepackage{")) == 0)
             continue;
+        else if (strncmp(buf, "\\usepackage[", strlen("\\usepackage[")) == 0)
+            continue;
         else if (strncmp(buf, "\\begin{docume", strlen("\\begin{docume")) ==
                  0)
             continue;
