@@ -29,6 +29,7 @@
 #include "processor/source.h"
 #include "processor/xfig.h"
 #include "processor/pdfcopy.h"
+#include "processor/svgtex.h"
 
 #include <stdlib.h>
 
@@ -80,6 +81,10 @@ struct processor *processors_search(void *context, const char *filename)
         return p;
 
     p = processor_pdfcopy_search(context, filename);
+    if (p != NULL)
+        return p;
+
+    p = processor_svgtex_search(context, filename);
     if (p != NULL)
         return p;
 

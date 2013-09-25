@@ -5,6 +5,8 @@ COMPILEOPTS += -Werror
 COMPILEOPTS += -Wno-unused-parameter
 COMPILEOPTS += -DTEK_VERSION=\"0.2.1-git\"
 
+LANGUAGES   += perl
+
 BINARIES    += tek
 LINKOPTS    += `ppkg-config --optional --have TALLOC talloc --libs`
 COMPILEOPTS += `ppkg-config --optional --have TALLOC talloc --cflags`
@@ -22,3 +24,6 @@ SOURCES     += gnuplotpp/main.c
 
 BINARIES    += texstrip
 SOURCES     += texstrip/main.c
+
+BINARIES    += svgtexpp
+SOURCES     += svgtexpp.pl
