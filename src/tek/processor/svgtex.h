@@ -41,6 +41,6 @@ struct processor_svgtex
 extern void processor_svgtex_boot(void *context);
 
 extern struct processor *processor_svgtex_search(void *context,
-                                                      const char *filename);
+                                                 const char *filename);
 
 #endif

@@ -44,8 +44,7 @@ void processor_svgtex_boot(void *context)
     p_name = talloc_strdup(context, "CONVERT");
 }
 
-struct processor *processor_svgtex_search(void *context,
-                                               const char *filename)
+struct processor *processor_svgtex_search(void *context, const char *filename)
 {
     struct processor_svgtex *p;
 
@@ -53,7 +52,6 @@ struct processor *processor_svgtex_search(void *context,
 
     if (string_ends_with(filename, ".svgtex"))
         p = talloc(context, struct processor_svgtex);
-
 
     if (p != NULL) {
         p->p.name = talloc_reference(p, p_name);

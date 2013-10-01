@@ -7,6 +7,7 @@
 -br
 -cbi0
 -cdw
+-ce
 -ncs
 -i4
 -l78

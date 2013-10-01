@@ -54,13 +54,11 @@ int main(int argc, char **argv)
             if (strcmp(last, "-o") == 0) {
                 output = argv[i];
                 last = NULL;
-            }
-            else if (strcmp(last, "-i") == 0) {
+            } else if (strcmp(last, "-i") == 0) {
                 input = argv[i];
                 last = NULL;
             }
-        }
-        else
+        } else
             last = argv[i];
     }
 
@@ -76,8 +74,7 @@ int main(int argc, char **argv)
         if (string_index(buf, "\\usepackage{graphicx}") != -1) {
             fputs(buf, otf);
             fputs("\\usepackage{grffile}\n", otf);
-        }
-        else if (string_index(buf, "\\includegraphics") != -1) {
+        } else if (string_index(buf, "\\includegraphics") != -1) {
             size_t index;
 
             /* Removes all the optional agruments */
@@ -97,8 +94,7 @@ int main(int argc, char **argv)
                 abort();
             fputs(".pdf", otf);
             fputs(buf + index, otf);
-        }
-        else {
+        } else {
             /* There was no special processor to process this file */
             fputs(buf, otf);
         }

@@ -54,13 +54,11 @@ int main(int argc, char **argv)
             if (strcmp(last, "-o") == 0) {
                 output = argv[i];
                 last = NULL;
-            }
-            else if (strcmp(last, "-i") == 0) {
+            } else if (strcmp(last, "-i") == 0) {
                 input = argv[i];
                 last = NULL;
             }
-        }
-        else
+        } else
             last = argv[i];
     }
 
@@ -107,8 +105,7 @@ int main(int argc, char **argv)
                 abort();
             fputs(".pdf", otf);
             fputs(buf + index, otf);
-        }
-        else
+        } else
             fputs(buf, otf);
     }
 

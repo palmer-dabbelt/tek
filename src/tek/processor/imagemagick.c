@@ -163,8 +163,7 @@ void process(struct processor *p_uncast, const char *filename,
         makefile_nam_cmd(m, "echo -e \"CONVERT\\t%s\"", infile);
         makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
         makefile_add_cmd(m, "convert \"%s\" \"%s\"", infile, outname);
-    }
-    else {
+    } else {
         makefile_nam_cmd(m, "echo -e \"INKCONV\\t%s\"", infile);
         makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
         makefile_add_cmd(m, "inkscape \"%s\" --export-pdf=\"%s\" -D",

@@ -277,8 +277,7 @@ void process(struct processor *p_uncast, const char *filename,
                 makefile_add_cmd(m, "\"./%s.proc\" > \"%s\"",
                                  stringlist_data(cur_short),
                                  stringlist_data(cur));
-            }
-            else {
+            } else {
                 makefile_add_cmd(m, "\"./%s.proc\" < \"%s.in\" > \"%s\"",
                                  stringlist_data(cur_short),
                                  stringlist_data(cur_short),
@@ -286,8 +285,7 @@ void process(struct processor *p_uncast, const char *filename,
             }
 
             makefile_end_cmds(m);
-        }
-        else {
+        } else {
             makefile_create_target(m, stringlist_data(cur));
 
             makefile_start_deps(m);

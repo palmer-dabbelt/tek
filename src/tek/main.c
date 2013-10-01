@@ -85,8 +85,7 @@ int main(int argc, char **argv)
         filename = talloc_strdup(context_argstrdup, "");
         stack_push(s, filename);
         talloc_unlink(context_argstrdup, filename);
-    }
-    else {
+    } else {
         for (i = 1; i < argc; i++) {
             filename = talloc_strdup(context_argstrdup, argv[i]);
             stack_push(s, filename);

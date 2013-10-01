@@ -61,8 +61,7 @@ void makefile_create_target(struct makefile *m, const char *name)
 
     if (stringlist_include(m->every_target, name)) {
         m->skip_target = true;
-    }
-    else {
+    } else {
         char *tmp;
 
         tmp = talloc_strdup(m, name);

@@ -213,8 +213,7 @@ void process(struct processor *p_uncast, const char *filename_input,
         makefile_create_target(m, out_file);
         makefile_start_deps(m);
         makefile_add_dep(m, pp_file);
-    }
-    else {
+    } else {
         phonydeps = talloc_array(c, char, strlen(pp_file) + 20);
         phonydeps[0] = '\0';
         strcat(phonydeps, pp_file);
@@ -474,8 +473,7 @@ void process(struct processor *p_uncast, const char *filename_input,
             makefile_add_cmd(m, "cp \"%s\" \"%s\"", html_file, out_file_html);
             makefile_end_cmds(m);
         }
-    }
-    else {
+    } else {
         if (phonydeps != NULL) {
             makefile_end_deps(m);
 

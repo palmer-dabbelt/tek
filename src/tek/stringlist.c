@@ -46,8 +46,7 @@ void stringlist_add(struct stringlist *l, const char *to_add)
         l->head = talloc(l, struct stringlist_node);
         l->head->next = NULL;
         l->head->data = talloc_strdup(l->head, to_add);
-    }
-    else {
+    } else {
         struct stringlist_node *cur;
 
         cur = l->head;
@@ -83,8 +82,7 @@ void stringlist_del(struct stringlist *l, const char *to_del)
         old = l->head;
         l->head = old->next;
         talloc_free(old);
-    }
-    else {
+    } else {
         struct stringlist_node *old;
 
         old = cur;
