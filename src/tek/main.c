@@ -29,6 +29,7 @@
 #include "processors.h"
 #include "makefile.h"
 #include "global.h"
+#include "version.h"
 
 #ifdef HAVE_TALLOC
 #include <talloc.h>
