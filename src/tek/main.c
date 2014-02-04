@@ -43,6 +43,7 @@ int main(int argc, char **argv)
     struct stack *s;
     struct makefile *m;
     char *filename;
+    void *root_context;
     void *context_argstrdup;
     void *context_search;
     void *context_pop;
@@ -56,17 +57,7 @@ int main(int argc, char **argv)
     talloc_enable_leak_report();
     talloc_set_log_stderr();
 
-    /* Parses the command-line options and starts up all submodules */
-    o = clopts_new(argc, argv);
-    s = stack_new(o);
-    processors_boot(o);
-    m = makefile_new(o);
-
-    /* Contexts to keep track of any potentially allocated memory in some
-     * helper functions.  Hopefully all of these will eventually go away. */
-    context_argstrdup = talloc_init("main(): argv strdup");
-    context_pop = talloc_init("main(): pop");
-    context_search = talloc_init("main(): search");
+    root_context = talloc_init("main(): root_context");
 
     /* Checks for command-line arguments */
     if (argc > 1 && strcmp(argv[1], "--with-html") == 0) {
@@ -80,6 +71,18 @@ int main(int argc, char **argv)
         argc--;
         argv++;
     }
+
+    /* Parses the command-line options and starts up all submodules */
+    o = clopts_new(root_context, argc, argv);
+    s = stack_new(o);
+    processors_boot(o);
+    m = makefile_new(o);
+
+    /* Contexts to keep track of any potentially allocated memory in some
+     * helper functions.  Hopefully all of these will eventually go away. */
+    context_argstrdup = talloc_new(root_context);
+    context_pop = talloc_new(root_context);
+    context_search = talloc_new(root_context);
 
     /* No arguments means find all possible tex files */
     if (argc == 1) {
@@ -121,10 +124,7 @@ int main(int argc, char **argv)
 
     /* Cleanup code, this is checked by talloc automatically on program
      * termination. */
-    TALLOC_FREE(context_search);
-    TALLOC_FREE(context_pop);
-    TALLOC_FREE(context_argstrdup);
-    TALLOC_FREE(o);
+    TALLOC_FREE(root_context);
 
     return exitvalue;
 }

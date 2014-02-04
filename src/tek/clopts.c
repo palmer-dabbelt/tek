@@ -27,12 +27,13 @@
 #include "extern/talloc.h"
 #endif
 
-struct clopts *clopts_new(int argc __attribute__ ((unused)),
+struct clopts *clopts_new(void *context,
+                          int argc __attribute__ ((unused)),
                           char **argv __attribute__ ((unused)))
 {
     struct clopts *o;
 
-    o = talloc(NULL, struct clopts);
+    o = talloc(context, struct clopts);
     o->verbose = false;
 
     return o;

@@ -29,6 +29,6 @@ struct clopts
     bool verbose;
 };
 
-extern struct clopts *clopts_new(int argc, char **argv);
+extern struct clopts *clopts_new(void *context, int argc, char **argv);
 
 #endif
