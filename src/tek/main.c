@@ -70,6 +70,8 @@ int main(int argc, char **argv)
         printf("tek %s\n", TEK_VERSION);
         argc--;
         argv++;
+        TALLOC_FREE(root_context);
+        exit(0);
     }
 
     /* Parses the command-line options and starts up all submodules */
