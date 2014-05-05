@@ -23,6 +23,7 @@
 
 #include <string.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 #ifdef HAVE_TALLOC
 #include <talloc.h>
@@ -99,6 +100,7 @@ void process(struct processor *p_uncast, const char *filename,
     int cachedir_index;
     char *cachedir;
     char *infile;
+    char *procfile;
 
     /* We need access to the real structure, get it safely */
     p = talloc_get_type(p_uncast, struct processor_pdfcopy);
@@ -124,17 +126,35 @@ void process(struct processor *p_uncast, const char *filename,
     TALLOC_FREE(cachedir);
     cachedir = talloc_strndup(c, filename, basename_len(filename));
 
-    /* Creates the target to build the image */
-    makefile_create_target(m, filename);
-    makefile_start_deps(m);
-    makefile_add_dep(m, infile);
-    makefile_end_deps(m);
+    /* Figure out if we're supposed to copy the file or we're supposed
+     * to generate it. */
+    procfile = talloc_asprintf(c, "%s.proc", infile);
+    fprintf(stderr, "procfile: '%s' %d\n", procfile, access(procfile, X_OK));
+    if (access(procfile, X_OK) == 0) {
+        /* Generate the file manually. */
+        makefile_create_target(m, filename);
+        makefile_start_deps(m);
+        makefile_add_dep(m, procfile);
+        makefile_end_deps(m);
 
-    makefile_start_cmds(m);
-    makefile_nam_cmd(m, "echo -e \"PDFCOPY\\t%s\"", infile);
-    makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
-    makefile_add_cmd(m, "cp \"%s\" \"%s\" >& /dev/null", infile, filename);
-    makefile_end_cmds(m);
+        makefile_start_cmds(m);
+        makefile_nam_cmd(m, "echo -e \"PDFGEN\\t%s\"", infile);
+        makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
+        makefile_add_cmd(m, "./\"%s\" > \"%s\"", procfile, filename);
+        makefile_end_cmds(m);
+    } else {
+        /* Just copy the file over. */
+        makefile_create_target(m, filename);
+        makefile_start_deps(m);
+        makefile_add_dep(m, infile);
+        makefile_end_deps(m);
+
+        makefile_start_cmds(m);
+        makefile_nam_cmd(m, "echo -e \"PDFCOPY\\t%s\"", infile);
+        makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
+        makefile_add_cmd(m, "cp \"%s\" \"%s\" >& /dev/null", infile, filename);
+        makefile_end_cmds(m);
+    }
 
     /* Cleans up all the memory allocated by this code. */
     TALLOC_FREE(c);
