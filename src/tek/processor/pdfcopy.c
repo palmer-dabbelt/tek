@@ -129,7 +129,6 @@ void process(struct processor *p_uncast, const char *filename,
     /* Figure out if we're supposed to copy the file or we're supposed
      * to generate it. */
     procfile = talloc_asprintf(c, "%s.proc", infile);
-    fprintf(stderr, "procfile: '%s' %d\n", procfile, access(procfile, X_OK));
     if (access(procfile, X_OK) == 0) {
         /* Generate the file manually. */
         makefile_create_target(m, filename);
