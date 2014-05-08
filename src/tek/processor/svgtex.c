@@ -135,7 +135,7 @@ void process(struct processor *p_uncast, const char *filename,
     makefile_start_cmds(m);
     makefile_nam_cmd(m, "echo -e \"SVGTEX\\t%s\"", infile);
     makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
-    makefile_add_cmd(m, "cd \"%s\"; svgtexpp \"%s\" >& /dev/null",
+    makefile_add_cmd(m, "cd \"%s\"; svgtexpp \"%s\" > /dev/null",
                      cachedir, infile);
     makefile_end_cmds(m);
 
