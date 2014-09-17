@@ -127,6 +127,7 @@ void process(struct processor *p_uncast, const char *filename_input,
     char *filename;
     char *phonydeps;
     char *biblio;
+    bool has_index;
 
     phonydeps = NULL;
 
@@ -136,8 +137,9 @@ void process(struct processor *p_uncast, const char *filename_input,
     /* Makes a new context */
     c = talloc_new(p);
 
-    /* By default, there is no bibliography */
+    /* By default, there is no bibliography or index file. */
     biblio = NULL;
+    has_index = false;
 
     /* FIXME: This is probably wrong... */
     filename = talloc_strdup(c, filename_input);
@@ -409,6 +411,9 @@ void process(struct processor *p_uncast, const char *filename_input,
             biblio = full_path;
             makefile_add_dep(m, full_path);
         }
+
+        if (string_index(buf, "\\printindex") != -1)
+            has_index = true;
     }
 
     TALLOC_FREE(buf);
@@ -432,6 +437,19 @@ void process(struct processor *p_uncast, const char *filename_input,
                              "bibtex `basename \"%s\" .tex`",
                              cache_dir, restname(pp_file), restname(pp_file));
 
+        }
+
+        if (has_index == true) {
+            makefile_add_cmd(m,
+                             "cd \"%s\" ; "
+                             "pdflatex -interaction=batchmode \"%s\" "
+                             ">& /dev/null"
+                             " || pdflatex \"%s\"",
+                             cache_dir, restname(pp_file), restname(pp_file));
+            makefile_add_cmd(m,
+                             "cd \"%s\" ; "
+                             "makeindex `basename \"%s\" .tex`.idx ",
+                             cache_dir, restname(pp_file));
         }
 
         makefile_add_cmd(m,
