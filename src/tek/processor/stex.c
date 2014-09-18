@@ -21,6 +21,7 @@
 
 #include "stex.h"
 
+#include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
 #include <unistd.h>
@@ -136,8 +137,10 @@ void process(struct processor *p_uncast, const char *filename,
      * produce the text file. */
     {
         char *exefile;
+        char *depfile;
 
         exefile = talloc_asprintf(c, "%s.proc", infile);
+        depfile = talloc_asprintf(c, "%s.deps", infile);
         if (access(exefile, X_OK) == 0) {
             char *outfile;
 
@@ -146,6 +149,20 @@ void process(struct processor *p_uncast, const char *filename,
             makefile_create_target(m, outfile);
             makefile_start_deps(m);
             makefile_add_dep(m, exefile);
+
+            /* Checks to see if there are any additional dependencies
+             * this s cript should use. */
+            if (access(depfile, R_OK) == 0) {
+                char buffer[1024];
+                FILE *f = fopen(depfile, "r");
+                while (fgets(buffer, 1024, f) != NULL) {
+                    while (isspace(buffer[strlen(buffer)-1]))
+                        buffer[strlen(buffer)-1] = '\0';
+                    makefile_add_dep(m, buffer);
+                }
+                fclose(f);
+            }
+
             makefile_end_deps(m);
 
             makefile_start_cmds(m);
