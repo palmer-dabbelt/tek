@@ -229,6 +229,10 @@ void process(struct processor *p_uncast, const char *filename_input,
     buf_size = 10240;
     buf = talloc_array(c, char, buf_size);
     inf = fopen(filename, "r");
+    if (inf == NULL) {
+        fprintf(stderr, "Unable to open '%s'\n", filename);
+        abort();
+    }
     while (fgets(buf, buf_size, inf) != NULL) {
         if (string_index(buf, "\\input") != -1) {
             int index;
