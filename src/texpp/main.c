@@ -94,28 +94,6 @@ int main(int argc, char **argv)
                 abort();
             fputs(".pdf", otf);
             fputs(buf + index, otf);
-        } else if (string_index(buf, "\\input") != -1) {
-            size_t index;
-
-            /* Removes all the optional agruments */
-            index = string_index(buf, "\\input");
-            index += strlen("\\input");
-            while ((buf[index] != '}') && (buf[index] != '\0'))
-                index++;
-
-            /* Ensures that the code is properly formed */
-            if (buf[index] == '\0') {
-                fprintf(stderr, "Bad input\n");
-                return 1;
-            }
-
-            /* Appends ".stex" to the filename when it's not already
-             * there. */
-            if (fwrite(buf, 1, index, otf) != index)
-                abort();
-            if (strcmp(buf + index - 4, ".stex") != 0)
-                fputs(".stex", otf);
-            fputs(buf + index, otf);
         } else {
             /* There was no special processor to process this file */
             fputs(buf, otf);
