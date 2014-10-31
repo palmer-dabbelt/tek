@@ -169,7 +169,8 @@ void process(struct processor *p_uncast, const char *filename,
             makefile_nam_cmd(m, "echo -e \"RUN\\t%s\"", exefile);
             makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true",
                              cachedir);
-            makefile_add_cmd(m, "./%s > %s", exefile, outfile);
+            makefile_add_cmd(m, "cd \"%s\"/..; ./`basename %s` > .tek_cache/`basename %s`",
+                             cachedir, exefile, outfile);
             makefile_end_cmds(m);
 
             infile = outfile;
