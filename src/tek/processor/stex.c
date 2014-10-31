@@ -158,7 +158,7 @@ void process(struct processor *p_uncast, const char *filename,
                 while (fgets(buffer, 1024, f) != NULL) {
                     while (isspace(buffer[strlen(buffer)-1]))
                         buffer[strlen(buffer)-1] = '\0';
-                    makefile_add_dep(m, buffer);
+                    makefile_add_dep(m, "%s/../%s", cachedir, buffer);
                 }
                 fclose(f);
             }
