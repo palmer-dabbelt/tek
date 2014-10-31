@@ -94,6 +94,31 @@ int main(int argc, char **argv)
                 abort();
             fputs(".pdf", otf);
             fputs(buf + index, otf);
+        } else if (string_index(buf, "\\input") != -1) {
+            size_t index, oindex;
+
+            /* Removes all the optional agruments */
+            index = string_index(buf, "\\input");
+            index += strlen("\\input");
+            while ((buf[index] != '}') && (buf[index] != '\0'))
+                index++;
+
+            /* Ensures that the code is properly formed */
+            if (buf[index] == '\0') {
+                fprintf(stderr, "Bad includegraphics\n");
+                return 1;
+            }
+
+            /* Appends ".pdf" to the filename */
+            oindex = index;
+            if (strncmp(buf + index - 4, ".tex", 4) == 0)
+                oindex = index - 4;
+            if (strncmp(buf + index - 5, ".stex", 5) == 0)
+                oindex = index - 5;
+            if (fwrite(buf, 1, oindex, otf) != oindex)
+                abort();
+            fputs(".stex", otf);
+            fputs(buf + index, otf);
         } else {
             /* There was no special processor to process this file */
             fputs(buf, otf);
