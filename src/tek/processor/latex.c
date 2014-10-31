@@ -273,9 +273,6 @@ void process(struct processor *p_uncast, const char *filename_input,
                 index++;
             buf[index] = '\0';
 
-            if (strcmp(included_name + strlen(included_name) - 4, ".stex") != 0)
-                included_name = talloc_asprintf(c, "%s.stex", included_name);
-
             /* Creates the full path */
             full_path_size =
                 strlen(included_name) + basename_len(filename) + 3;
