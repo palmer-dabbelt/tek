@@ -23,12 +23,14 @@ SOURCES     += tek/main.c
 TESTSRC     += input-stex.bash
 TESTSRC     += input-tex.bash
 TESTSRC     += input-noext.bash
+TESTSRC     += includegraphics-in-comment.bash
 
 BINARIES    += texpp
 SOURCES     += texpp/main.c
 TESTSRC     += input-stex.bash
 TESTSRC     += input-tex.bash
 TESTSRC     += input-noext.bash
+TESTSRC     += includegraphics-in-comment.bash
 
 BINARIES    += texpp-html
 SOURCES     += texpp-html/main.c

@@ -71,7 +71,8 @@ int main(int argc, char **argv)
     otf = fopen(output, "w");
 
     while (fgets(buf, BUF_SIZE, inf) != NULL) {
-        if (string_index(buf, "\\usepackage{graphicx}") != -1) {
+        if (buf[0] == '%') {
+        } else if (string_index(buf, "\\usepackage{graphicx}") != -1) {
             fputs(buf, otf);
             fputs("\\usepackage{grffile}\n", otf);
         } else if (string_index(buf, "\\includegraphics") != -1) {
