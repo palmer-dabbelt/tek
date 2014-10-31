@@ -6,6 +6,8 @@ COMPILEOPTS += -Wno-unused-parameter
 
 LANGUAGES   += perl
 
+LANGUAGES   += bash
+
 GENERATE    += version.h
 
 BINARIES    += tek
@@ -13,9 +15,11 @@ LINKOPTS    += `ppkg-config --optional --have TALLOC talloc --libs`
 COMPILEOPTS += `ppkg-config --optional --have TALLOC talloc --cflags`
 COMPILEOPTS += -Isrc/extern/
 SOURCES     += tek/main.c
+TESTSRC     += input-stex.bash
 
 BINARIES    += texpp
 SOURCES     += texpp/main.c
+TESTSRC     += input-stex.bash
 
 BINARIES    += texpp-html
 SOURCES     += texpp-html/main.c
@@ -25,6 +29,7 @@ SOURCES     += gnuplotpp/main.c
 
 BINARIES    += texstrip
 SOURCES     += texstrip/main.c
+TESTSRC     += input-stex.bash
 
 BINARIES    += svgtexpp
 SOURCES     += svgtexpp.pl

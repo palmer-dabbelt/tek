@@ -7,3 +7,4 @@ obj/
 Configfile-c
 Configfile-c.local
 ./pconfigure
+check/
