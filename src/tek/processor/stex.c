@@ -35,6 +35,7 @@
 static bool string_ends_with(const char *string, const char *end);
 static int basename_len(const char *string);
 static int string_index(const char *a, const char *b);
+static char *make_path_to_dotdot(void *context, const char *input);
 
 static void process(struct processor *p_uncast, const char *filename,
                     struct stack *s, struct makefile *m);
@@ -92,6 +93,25 @@ int string_index(const char *a, const char *b)
     return -1;
 }
 
+char *make_path_to_dotdot(void *context, const char *input)
+{
+    size_t i;
+    size_t seperators;
+
+    seperators = 0;
+    for (i = 0; i < strlen(input); ++i)
+        if (input[i] == '/')
+            seperators++;
+
+    char *out = talloc_array(context, char, seperators * 3 + 1);
+    memset(out, '\0', seperators * 3 + 1);
+
+    for (i = 0; i < seperators; ++i)
+        strcat(out, "../");
+
+    return out;
+}
+
 void process(struct processor *p_uncast, const char *filename,
              struct stack *s, struct makefile *m)
 {
@@ -138,6 +158,7 @@ void process(struct processor *p_uncast, const char *filename,
     {
         char *exefile;
         char *depfile;
+        char *dotdotpath;
 
         exefile = talloc_asprintf(c, "%s.proc", infile);
         depfile = talloc_asprintf(c, "%s.deps", infile);
@@ -145,6 +166,7 @@ void process(struct processor *p_uncast, const char *filename,
             char *outfile;
 
             outfile = talloc_asprintf(c, "%s.out", filename);
+            dotdotpath = make_path_to_dotdot(c, outfile);
 
             makefile_create_target(m, outfile);
             makefile_start_deps(m);
@@ -169,8 +191,8 @@ void process(struct processor *p_uncast, const char *filename,
             makefile_nam_cmd(m, "echo -e \"RUN\\t%s\"", exefile);
             makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true",
                              cachedir);
-            makefile_add_cmd(m, "cd \"%s\"/..; ./`basename %s` > .tek_cache/`basename %s`",
-                             cachedir, exefile, outfile);
+            makefile_add_cmd(m, "cd `dirname %s`; ./`basename %s` > `dirname %s`/%s",
+                             exefile, exefile, dotdotpath, outfile);
             makefile_end_cmds(m);
 
             infile = outfile;
