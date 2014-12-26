@@ -159,14 +159,27 @@ void process(struct processor *p_uncast, const char *filename,
         char *exefile;
         char *depfile;
         char *dotdotpath;
+        char *dirname_exefile;
 
         exefile = talloc_asprintf(c, "%s.proc", infile);
         depfile = talloc_asprintf(c, "%s.deps", infile);
         if (access(exefile, X_OK) == 0) {
             char *outfile;
+            ssize_t i;
 
             outfile = talloc_asprintf(c, "%s.out", filename);
             dotdotpath = make_path_to_dotdot(c, outfile);
+
+            dirname_exefile = talloc_asprintf(c, "%s", exefile);
+            for (i = strlen(exefile); i >= 0; --i) {
+                if (dirname_exefile[i] != '/')
+                    continue;
+
+                dirname_exefile[i] = '\0';
+                break;
+            }
+            if (i == 0)
+                strcpy(dirname_exefile, ".");
 
             makefile_create_target(m, outfile);
             makefile_start_deps(m);
@@ -180,7 +193,8 @@ void process(struct processor *p_uncast, const char *filename,
                 while (fgets(buffer, 1024, f) != NULL) {
                     while (isspace(buffer[strlen(buffer)-1]))
                         buffer[strlen(buffer)-1] = '\0';
-                    makefile_add_dep(m, "%s/../%s", cachedir, buffer);
+                    makefile_add_dep(m, "%s/%s",
+                                     dirname_exefile, buffer);
                 }
                 fclose(f);
             }
@@ -191,8 +205,8 @@ void process(struct processor *p_uncast, const char *filename,
             makefile_nam_cmd(m, "echo -e \"RUN\\t%s\"", exefile);
             makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true",
                              cachedir);
-            makefile_add_cmd(m, "cd `dirname %s`; ./`basename %s` > `dirname %s`/%s",
-                             exefile, exefile, dotdotpath, outfile);
+            makefile_add_cmd(m, "cd %s; ./`basename %s` > `dirname %s`/%s",
+                             dirname_exefile, exefile, dotdotpath, outfile);
             makefile_end_cmds(m);
 
             infile = outfile;
