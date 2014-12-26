@@ -128,6 +128,7 @@ void process(struct processor *p_uncast, const char *filename_input,
     char *phonydeps;
     char *biblio;
     bool has_index;
+    bool has_fmtcount;
 
     phonydeps = NULL;
 
@@ -140,6 +141,7 @@ void process(struct processor *p_uncast, const char *filename_input,
     /* By default, there is no bibliography or index file. */
     biblio = NULL;
     has_index = false;
+    has_fmtcount = false;
 
     /* FIXME: This is probably wrong... */
     filename = talloc_strdup(c, filename_input);
@@ -424,6 +426,9 @@ void process(struct processor *p_uncast, const char *filename_input,
 
         if (string_index(buf, "\\printindex") != -1)
             has_index = true;
+
+        if (string_index(buf, "\\Numberstringnum{") != -1)
+            has_fmtcount = true;
     }
 
     TALLOC_FREE(buf);
@@ -433,6 +438,16 @@ void process(struct processor *p_uncast, const char *filename_input,
 
         makefile_start_cmds(m);
         makefile_nam_cmd(m, "echo -e \"LATEX\\t%s\"", filename);
+
+        if (has_fmtcount == true) {
+            makefile_add_cmd(m,
+                             "cd \"%s\" ; "
+                             "pdflatex -interaction=batchmode \"%s\" "
+                             ">& /dev/null"
+                             " || true",
+                             cache_dir, restname(pp_file), restname(pp_file));
+        }
+
         if (biblio != NULL) {
             makefile_add_cmd(m, "cp \"%s\" \"%s\"", biblio, cache_dir);
             makefile_add_cmd(m,
