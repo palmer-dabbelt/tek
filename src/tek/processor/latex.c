@@ -23,6 +23,7 @@
 
 #include <string.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 #ifdef HAVE_TALLOC
 #include <talloc.h>
@@ -430,6 +431,28 @@ void process(struct processor *p_uncast, const char *filename_input,
 
         if (string_index(buf, "\\Numberstringnum{") != -1)
             has_fmtcount = true;
+
+        if (string_index(buf, "\\documentclass{") != -1) {
+            char *cls_name;
+            char *cls_file, *sty_file;
+
+            cls_name = buf + strlen("\\documentclass{");
+
+            cls_file = talloc_asprintf(c, "%.*s.cls",
+                                       string_index(cls_name, "}"),
+                                       cls_name
+                );
+            fprintf(stderr, "cls_file: '%s'\n", cls_file);
+            if (access(cls_file, R_OK) == 0)
+                makefile_add_dep(m, cls_file);
+
+            sty_file = talloc_asprintf(c, "%.*s.sty",
+                                       string_index(cls_name, "}"),
+                                       cls_name
+                );
+            if (access(sty_file, R_OK) == 0)
+                makefile_add_dep(m, sty_file);
+        }
     }
 
     TALLOC_FREE(buf);
