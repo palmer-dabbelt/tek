@@ -129,6 +129,7 @@ void process(struct processor *p_uncast, const char *filename_input,
     char *biblio;
     bool has_index;
     bool has_fmtcount;
+    char *texputs;
 
     phonydeps = NULL;
 
@@ -433,6 +434,10 @@ void process(struct processor *p_uncast, const char *filename_input,
 
     TALLOC_FREE(buf);
 
+    texputs = talloc_strdup(c, ".:..");
+    if (getenv("TEXINPUTS") != NULL)
+        texputs = talloc_asprintf(c, ".:..:%s", getenv("TEXINPUTS"));
+
     if (p->nopdf == false) {
         makefile_end_deps(m);
 
@@ -442,51 +447,51 @@ void process(struct processor *p_uncast, const char *filename_input,
         if (has_fmtcount == true) {
             makefile_add_cmd(m,
                              "cd \"%s\" ; "
-                             "pdflatex -interaction=batchmode \"%s\" "
+                             "TEXINPUTS=\"%s\" pdflatex -interaction=batchmode \"%s\" "
                              ">& /dev/null"
                              " || true",
-                             cache_dir, restname(pp_file), restname(pp_file));
+                             cache_dir, texputs, restname(pp_file), restname(pp_file));
         }
 
         if (biblio != NULL) {
             makefile_add_cmd(m, "cp \"%s\" \"%s\"", biblio, cache_dir);
             makefile_add_cmd(m,
                              "cd \"%s\" ; "
-                             "pdflatex -interaction=batchmode \"%s\" "
+                             "TEXINPUTS=\"%s\" pdflatex -interaction=batchmode \"%s\" "
                              ">& /dev/null"
                              " || pdflatex \"%s\"",
-                             cache_dir, restname(pp_file), restname(pp_file));
+                             cache_dir, texputs, restname(pp_file), restname(pp_file));
             makefile_add_cmd(m,
                              "cd \"%s\" ; "
                              "bibtex `basename \"%s\" .tex` >& /dev/null || "
                              "bibtex `basename \"%s\" .tex`",
-                             cache_dir, restname(pp_file), restname(pp_file));
+                             cache_dir, texputs, restname(pp_file), restname(pp_file));
 
         }
 
         if (has_index == true) {
             makefile_add_cmd(m,
                              "cd \"%s\" ; "
-                             "pdflatex -interaction=batchmode \"%s\" "
+                             "TEXINPUTS=\"%s\" pdflatex -interaction=batchmode \"%s\" "
                              ">& /dev/null"
                              " || pdflatex \"%s\"",
-                             cache_dir, restname(pp_file), restname(pp_file));
+                             cache_dir, texputs, restname(pp_file), restname(pp_file));
             makefile_add_cmd(m,
                              "cd \"%s\" ; "
                              "makeindex `basename \"%s\" .tex`.idx ",
-                             cache_dir, restname(pp_file));
+                             cache_dir, texputs, restname(pp_file));
         }
 
         makefile_add_cmd(m,
                          "cd \"%s\" ; "
-                         "pdflatex -interaction=batchmode \"%s\" >& /dev/null"
+                         "TEXINPUTS=\"%s\" pdflatex -interaction=batchmode \"%s\" >& /dev/null"
                          " || pdflatex \"%s\"",
-                         cache_dir, restname(pp_file), restname(pp_file));
+                         cache_dir, texputs, restname(pp_file), restname(pp_file));
         makefile_add_cmd(m,
                          "cd \"%s\" ; "
-                         "pdflatex -interaction=batchmode \"%s\" >& /dev/null"
+                         "TEXINPUTS=\"%s\" pdflatex -interaction=batchmode \"%s\" >& /dev/null"
                          " || pdflatex \"%s\"",
-                         cache_dir, restname(pp_file), restname(pp_file));
+                         cache_dir, texputs, restname(pp_file), restname(pp_file));
         makefile_add_cmd(m, "cp \"%s\" \"%s\"", pdf_file, out_file);
         makefile_end_cmds(m);
 
