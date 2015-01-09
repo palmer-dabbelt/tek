@@ -442,7 +442,6 @@ void process(struct processor *p_uncast, const char *filename_input,
                                        string_index(cls_name, "}"),
                                        cls_name
                 );
-            fprintf(stderr, "cls_file: '%s'\n", cls_file);
             if (access(cls_file, R_OK) == 0)
                 makefile_add_dep(m, cls_file);
 
