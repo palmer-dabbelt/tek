@@ -456,7 +456,7 @@ void process(struct processor *p_uncast, const char *filename_input,
 
     TALLOC_FREE(buf);
 
-    texputs = talloc_strdup(c, ".:..");
+    texputs = talloc_strdup(c, ".:..:");
     if (getenv("TEXINPUTS") != NULL)
         texputs = talloc_asprintf(c, ".:..:%s", getenv("TEXINPUTS"));
 
