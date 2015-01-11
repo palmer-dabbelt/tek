@@ -57,6 +57,8 @@ struct processor *processor_imagemagick_search(void *context,
         p = talloc(context, struct processor_imagemagick);
     if (string_ends_with(filename, ".svg.pdf"))
         p = talloc(context, struct processor_imagemagick);
+    if (string_ends_with(filename, ".eps.pdf"))
+        p = talloc(context, struct processor_imagemagick);
 
     if (p != NULL) {
         p->p.name = talloc_reference(p, p_name);
@@ -70,6 +72,8 @@ struct processor *processor_imagemagick_search(void *context,
         if (string_ends_with(filename, ".uncrop.jpeg.pdf"))
             p->crop = true;
         if (string_ends_with(filename, ".uncrop.svg.pdf"))
+            p->crop = true;
+        if (string_ends_with(filename, ".uncrop.eps.pdf"))
             p->crop = true;
 
         if (string_ends_with(filename, ".inkscape.svg.pdf"))
