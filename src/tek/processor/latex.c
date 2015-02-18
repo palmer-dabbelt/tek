@@ -525,7 +525,8 @@ void process(struct processor *p_uncast, const char *filename_input,
                          cache_dir,
                          texputs, restname(pp_file),
                          texputs, restname(pp_file));
-        makefile_add_cmd(m, "cp \"%s\" \"%s\"", pdf_file, out_file);
+        makefile_add_cmd(m, "cp \"%s\" \"%s\".tmp", pdf_file, pdf_file);
+        makefile_add_cmd(m, "mv \"%s\".tmp \"%s\"", pdf_file, out_file);
         makefile_end_cmds(m);
 
         if (global_with_html) {
