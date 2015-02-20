@@ -66,7 +66,7 @@ struct processor *processor_imagemagick_search(void *context,
         p->p.process = &process;
 
         p->crop = false;
-        p->inkscape = false;
+        p->svg = false;
 
         if (string_ends_with(filename, ".uncrop.png.pdf"))
             p->crop = true;
@@ -74,16 +74,13 @@ struct processor *processor_imagemagick_search(void *context,
             p->crop = true;
         if (string_ends_with(filename, ".uncrop.svg.pdf")) {
             p->crop = true;
-            p->inkscape = true;
+            p->svg = true;
         }
         if (string_ends_with(filename, ".uncrop.eps.pdf"))
             p->crop = true;
 
-        if (string_ends_with(filename, ".inkscape.svg.pdf"))
-            p->inkscape = true;
-
         if (string_ends_with(filename, ".svg.pdf"))
-            p->inkscape = true;
+            p->svg = true;
     }
 
     return (struct processor *)p;
@@ -169,14 +166,14 @@ void process(struct processor *p_uncast, const char *filename,
     makefile_end_deps(m);
 
     makefile_start_cmds(m);
-    if (p->inkscape == false) {
+    if (p->svg == false) {
         makefile_nam_cmd(m, "echo -e \"CONVERT\\t%s\"", infile);
         makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
         makefile_add_cmd(m, "convert \"%s\" \"%s\"", infile, outname);
     } else {
-        makefile_nam_cmd(m, "echo -e \"INKCONV\\t%s\"", infile);
+        makefile_nam_cmd(m, "echo -e \"RSVGC\\t%s\"", infile);
         makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
-        makefile_add_cmd(m, "inkscape \"%s\" --export-pdf=\"%s\" -D",
+        makefile_add_cmd(m, "rsvg-convert \"%s\" -f pdf -o \"%s\"",
                          infile, outname);
     }
     makefile_end_cmds(m);

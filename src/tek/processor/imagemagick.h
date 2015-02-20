@@ -34,8 +34,8 @@ struct processor_imagemagick
     bool crop;
 
     /* Set to true when this is an image that should be converted
-     * using inkscape (as opposed to using ImageMagick). */
-    bool inkscape;
+     * using rsvg-convert (a better SVG converter). */
+    bool svg;
 };
 
 extern void processor_imagemagick_boot(void *context);
