@@ -156,6 +156,29 @@ void process(struct processor *p_uncast, const char *filename,
     makefile_add_cmd(m, "cp \"%s\" \"%s\"", origfile, cachename);
     makefile_end_cmds(m);
 
+    /* Also generate the relevant PDF */
+    {
+        char *outname;
+
+        outname = talloc_asprintf(c, "%.*s.svg.pdf",
+                                  (int)(strlen(cachename)-8),
+                                  cachename);
+        
+
+        makefile_create_target(m, outname);
+        makefile_start_deps(m);
+        makefile_add_dep(m, cachename);
+        makefile_end_deps(m);
+
+        makefile_start_cmds(m);
+        makefile_nam_cmd(m, "echo -e \"RSVGC\\t%s\"", infile);
+        makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
+        makefile_add_cmd(m, "rsvg-convert \"%s\" -f pdf -o \"%s\"",
+                         infile, outname);
+        makefile_end_cmds(m);
+    }
+    
+
     /* Cleans up all the memory allocated by this code. */
     TALLOC_FREE(c);
 }
