@@ -66,7 +66,7 @@ my $overlay_path = join('/',$inkpath,$inkname);
 `touch $overlay_path`;
 
 # Open the tex file
-my $tex_path = join('',$inkfile,'tex');
+my $tex_path = join('',$inkfile,'tex.stex');
 open (TEXFILE, ">$tex_path");
 
 my $iter = 0;

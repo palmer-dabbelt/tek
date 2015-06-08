@@ -49,6 +49,10 @@ struct processor *processors_search(void *context, const char *filename)
 {
     struct processor *p;
 
+    p = processor_svgtex_search(context, filename);
+    if (p != NULL)
+        return p;
+
     p = processor_latex_search(context, filename);
     if (p != NULL)
         return p;
@@ -82,10 +86,6 @@ struct processor *processors_search(void *context, const char *filename)
         return p;
 
     p = processor_pdfcopy_search(context, filename);
-    if (p != NULL)
-        return p;
-
-    p = processor_svgtex_search(context, filename);
     if (p != NULL)
         return p;
 

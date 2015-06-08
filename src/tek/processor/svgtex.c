@@ -50,7 +50,7 @@ struct processor *processor_svgtex_search(void *context, const char *filename)
 
     p = NULL;
 
-    if (string_ends_with(filename, ".svgtex"))
+    if (string_ends_with(filename, ".svgtex.stex"))
         p = talloc(context, struct processor_svgtex);
 
     if (p != NULL) {
@@ -119,12 +119,12 @@ void process(struct processor *p_uncast, const char *filename,
     infile = talloc_strdup(c, filename);
     infile[cachedir_index] = '\0';
     strcat(infile, filename + strlen(cachedir));
-    infile[strlen(infile) - 3] = '\0';
+    infile[strlen(infile) - 8] = '\0';
 
     TALLOC_FREE(cachedir);
     cachedir = talloc_strndup(c, filename, basename_len(filename));
 
-    cachename = talloc_strndup(c, filename, strlen(filename) - 3);
+    cachename = talloc_strndup(c, filename, strlen(filename) - 8);
 
     /* Creates the target to build the LaTeX file for importing. */
     makefile_create_target(m, filename);
