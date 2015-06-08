@@ -99,6 +99,7 @@ void process(struct processor *p_uncast, const char *filename,
     char *cachedir;
     char *infile;
     char *cachename;
+    char *origfile;
 
     /* We need access to the real structure, get it safely */
     p = talloc_get_type(p_uncast, struct processor_svgtex);
@@ -126,6 +127,10 @@ void process(struct processor *p_uncast, const char *filename,
 
     cachename = talloc_strndup(c, filename, strlen(filename) - 8);
 
+    origfile = infile;
+    while (strstr(infile, "/") != NULL)
+        infile = infile + 1;
+
     /* Creates the target to build the LaTeX file for importing. */
     makefile_create_target(m, filename);
     makefile_start_deps(m);
@@ -135,20 +140,20 @@ void process(struct processor *p_uncast, const char *filename,
     makefile_start_cmds(m);
     makefile_nam_cmd(m, "echo -e \"SVGTEX\\t%s\"", infile);
     makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
-    makefile_add_cmd(m, "cd \"%s\"; svgtexpp \"%s\" > /dev/null",
-                     cachedir, infile);
+    makefile_add_cmd(m, "cd .tek_cache; svgtexpp \"%s/%s\" > /dev/null",
+                     strstr(cachedir, "/")+1, infile);
     makefile_end_cmds(m);
 
     /* This one is necessary for pandoc. */
     makefile_create_target(m, cachename);
     makefile_start_deps(m);
-    makefile_add_dep(m, infile);
+    makefile_add_dep(m, origfile);
     makefile_end_deps(m);
 
     makefile_start_cmds(m);
-    makefile_nam_cmd(m, "echo -e \"IMGCP\\t%s\"", infile);
+    makefile_nam_cmd(m, "echo -e \"IMGCP\\t%s\"", origfile);
     makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
-    makefile_add_cmd(m, "cp \"%s\" \"%s\"", infile, cachename);
+    makefile_add_cmd(m, "cp \"%s\" \"%s\"", origfile, cachename);
     makefile_end_cmds(m);
 
     /* Cleans up all the memory allocated by this code. */
