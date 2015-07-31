@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version="v0.9.0"
+version="v0.9.1"
 
 if [[ "$1" == "--deps" ]]
 then
