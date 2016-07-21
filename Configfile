@@ -25,6 +25,7 @@ TESTSRC     += input-tex.bash
 TESTSRC     += input-noext.bash
 TESTSRC     += includegraphics-in-comment.bash
 TESTSRC     += local-cls.bash
+TESTSRC     += lulu-subchapter.bash
 
 BINARIES    += texpp
 SOURCES     += texpp/main.c

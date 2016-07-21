@@ -122,6 +122,7 @@ void process(struct processor *p_uncast, const char *filename,
     char *infile;
     char *texfile;
     bool skip_recursive_deps;
+    char *actual_cache_dir;
 
     /* By default we don't want to skip searching for recursive
      * dependencies. */
@@ -214,11 +215,28 @@ void process(struct processor *p_uncast, const char *filename,
         }
     }
 
+    {
+        size_t last_slash;
+        size_t i;
+
+        last_slash = 0;
+        for (i = 0; i < strlen(filename); ++i)
+            if (filename[i] == '/')
+                last_slash = i;
+
+        actual_cache_dir = talloc_array(c, char, last_slash + 30);
+        actual_cache_dir[0] = '\0';
+        strncat(actual_cache_dir,
+                filename + strlen(".tek_cache/"),
+                last_slash - strlen(".tek_cache"));
+        strcat(actual_cache_dir, ".tek_cache/");
+    }
+
     /* Creates the target to build the image */
     makefile_create_target(m, filename);
     makefile_start_deps(m);
     if (skip_recursive_deps == false)
-        makefile_add_dep(m, "%s-stexdeps", filename);
+        makefile_add_dep(m, "%s%s-stexdeps", actual_cache_dir, filename + basename_len(filename) + 1);
     makefile_add_dep(m, infile);
     makefile_end_deps(m);
 
