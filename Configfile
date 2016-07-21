@@ -11,11 +11,11 @@ LANGUAGES   += bash
 GENERATE    += version.h
 
 BINARIES    += tek
-TESTDEPS    += bin/texpp
-TESTDEPS    += bin/texpp-html
-TESTDEPS    += bin/gnuplotpp
-TESTDEPS    += bin/texstrip
-TESTDEPS    += bin/svgtexpp
+#TESTDEPS    += bin/texpp
+#TESTDEPS    += bin/texpp-html
+#TESTDEPS    += bin/gnuplotpp
+#TESTDEPS    += bin/texstrip
+#TESTDEPS    += bin/svgtexpp
 LINKOPTS    += `ppkg-config --optional --have TALLOC talloc --libs`
 COMPILEOPTS += `ppkg-config --optional --have TALLOC talloc --cflags`
 COMPILEOPTS += -Isrc/extern/
