@@ -122,7 +122,7 @@ void process(struct processor *p_uncast, const char *filename,
     char *infile;
     char *texfile;
     bool skip_recursive_deps;
-    char *actual_cache_dir;
+    char *subdir;
 
     /* By default we don't want to skip searching for recursive
      * dependencies. */
@@ -215,35 +215,40 @@ void process(struct processor *p_uncast, const char *filename,
         }
     }
 
-    {
-        size_t last_slash;
-        size_t i;
-
-        last_slash = 0;
-        for (i = 0; i < strlen(filename); ++i)
-            if (filename[i] == '/')
-                last_slash = i;
-
-        actual_cache_dir = talloc_array(c, char, last_slash + 30);
-        actual_cache_dir[0] = '\0';
-        strncat(actual_cache_dir,
-                filename + strlen(".tek_cache/"),
-                last_slash - strlen(".tek_cache"));
-        strcat(actual_cache_dir, ".tek_cache/");
-    }
+    /* By default there isn't a subdirectory for texstrip. */
+    subdir = "";
 
     /* Creates the target to build the image */
     makefile_create_target(m, filename);
     makefile_start_deps(m);
-    if (skip_recursive_deps == false)
-        makefile_add_dep(m, "%s%s-stexdeps", actual_cache_dir, filename + basename_len(filename) + 1);
+    if (skip_recursive_deps == false) {
+        char *actual_cache_dir;
+        const char *infile_last_slash;
+        ssize_t i;
+        
+        infile_last_slash = infile + strlen(infile) - 1;
+        while (*infile_last_slash != '/' && infile_last_slash > infile)
+                infile_last_slash--;
+
+        actual_cache_dir = talloc_array(c, char, strlen(infile) + 20);
+        for (i = 0; i < (infile_last_slash - infile); ++i)
+            actual_cache_dir[i] = infile[i];
+	if (infile[i] == '/') {
+	    actual_cache_dir[i] = infile[i];
+	    i++;
+	}
+        actual_cache_dir[i] = '\0';
+
+        makefile_add_dep(m, "%s-stexdeps", filename);
+	subdir = talloc_asprintf(c, "--subdir %s", actual_cache_dir);
+    }
     makefile_add_dep(m, infile);
     makefile_end_deps(m);
 
     makefile_start_cmds(m);
     makefile_nam_cmd(m, "echo -e \"STRIP\\t%s\"", infile);
-    makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true", cachedir);
-    makefile_add_cmd(m, "texstrip -i \"%s\" -o \"%s\"", infile, filename);
+    makefile_add_cmd(m, "mkdir -p $(dir $@)");
+    makefile_add_cmd(m, "texstrip -i \"%s\" -o \"%s\" %s", infile, filename, subdir);
     makefile_end_cmds(m);
 
     /* We need to scan the .tex file for dependencies, this is kind of

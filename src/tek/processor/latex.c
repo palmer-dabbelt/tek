@@ -220,9 +220,10 @@ void process(struct processor *p_uncast, const char *filename_input,
         makefile_start_deps(m);
         makefile_add_dep(m, pp_file);
     } else {
-        phonydeps = talloc_array(c, char, strlen(pp_file) + 20);
+        phonydeps = talloc_array(c, char, strlen(out_file) + 30);
         phonydeps[0] = '\0';
-        strcat(phonydeps, pp_file);
+	strcat(phonydeps, ".tek_cache/");
+        strcat(phonydeps, out_file);
         phonydeps[strlen(phonydeps) - 4] = '\0';
         strcat(phonydeps, ".stex-stexdeps");
 
@@ -244,7 +245,6 @@ void process(struct processor *p_uncast, const char *filename_input,
             char *full_path;
             int full_path_size;
             char *pdf_path;
-            int pdf_path_size;
 
             /* Checks for comments */
             index = string_index(buf, "\\input");
@@ -295,12 +295,7 @@ void process(struct processor *p_uncast, const char *filename_input,
             strcat(full_path, included_name);
 
             /* We need to convert to PDF so latex will input the file */
-            pdf_path_size = strlen(cache_dir) + strlen(included_name) + 10;
-            pdf_path = talloc_array(c, char, pdf_path_size);
-            pdf_path[0] = '\0';
-            strcat(pdf_path, cache_dir);
-            strcat(pdf_path, "/");
-            strcat(pdf_path, included_name);
+	    pdf_path = talloc_asprintf(c, ".tek_cache/%s", full_path);
             makefile_add_dep(m, pdf_path);
 
             /* The path to the input file should be processed */
@@ -465,6 +460,7 @@ void process(struct processor *p_uncast, const char *filename_input,
 
         makefile_start_cmds(m);
         makefile_nam_cmd(m, "echo -e \"LATEX\\t%s\"", filename);
+	makefile_add_cmd(m, "mkdir -p $(dir $@)");
 
         if (has_fmtcount == true) {
             makefile_add_cmd(m,
@@ -560,8 +556,7 @@ void process(struct processor *p_uncast, const char *filename_input,
             makefile_end_deps(m);
 
             makefile_start_cmds(m);
-            makefile_add_cmd(m, "mkdir -p \"%s\" >& /dev/null || true",
-                             cache_dir);
+            makefile_add_cmd(m, "mkdir -p $(dir $@)");
             makefile_add_cmd(m, "date > \"%s\"", phonydeps);
             makefile_end_cmds(m);
         }

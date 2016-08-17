@@ -44,10 +44,13 @@ int main(int argc, char **argv)
     char *input, *output, *last;
     FILE *inf, *otf;
     char buf[BUF_SIZE];
+    char *subdir1, *subdir2;
 
     input = NULL;
     last = NULL;
     output = NULL;
+    subdir1 = "";
+    subdir2 = "";
 
     for (i = 1; i < argc; i++) {
         if (last != NULL) {
@@ -56,6 +59,10 @@ int main(int argc, char **argv)
                 last = NULL;
             } else if (strcmp(last, "-i") == 0) {
                 input = argv[i];
+                last = NULL;
+            } else if (strcmp(last, "--subdir") == 0) {
+	        subdir1 = argv[i];
+                subdir2 = "/";
                 last = NULL;
             }
         } else
@@ -104,6 +111,39 @@ int main(int argc, char **argv)
             if (fwrite(buf, 1, index, otf) != index)
                 abort();
             fputs(".pdf", otf);
+            fputs(buf + index, otf);
+        } else if (string_index(buf, "\\input") != -1) {
+            size_t iindex, index, oindex;
+
+            /* Removes all the optional agruments */
+            index = string_index(buf, "\\input");
+            index += strlen("\\input");
+            while ((buf[index] != '{') && (buf[index] != '\0'))
+                index++;
+	    iindex = index + 1;
+            while ((buf[index] != '}') && (buf[index] != '\0'))
+                index++;
+
+            /* Ensures that the code is properly formed */
+            if (buf[index] == '\0') {
+                fprintf(stderr, "Bad input\n");
+                return 1;
+            }
+
+            /* Find the rest of the stuff to output. */
+            oindex = index;
+            if (strncmp(buf + index - 4, ".tex", 4) == 0)
+                oindex = index - 4;
+            if (strncmp(buf + index - 5, ".stex", 5) == 0)
+                oindex = index - 5;
+
+	    if (fwrite(buf, 1, iindex, otf) != iindex)
+	        abort();
+            fputs(subdir1, otf);
+            fputs(subdir2, otf);
+            if (fwrite(buf + iindex, 1, oindex - iindex, otf) != oindex - iindex)
+		abort();
+	    fputs(".stex", otf);
             fputs(buf + index, otf);
         } else
             fputs(buf, otf);

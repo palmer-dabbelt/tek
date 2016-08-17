@@ -13,7 +13,7 @@ EOF
 cat >>gold <<"EOF"
 
 Main before
-\input{subchapter}
+\input{subchapter.stex}
 Main end
 EOF
 

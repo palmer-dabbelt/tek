@@ -4,4 +4,4 @@ $PTEST_BINARY
 
 cat Makefile
 
-yes Q | make -j1
+echo "" | make -j1
