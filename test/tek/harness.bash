@@ -1,6 +1,6 @@
 export PATH="$(dirname "$PTEST_BINARY"):$PATH"
 
-$PTEST_BINARY
+$PTEST_BINARY $TEKARGS
 
 cat Makefile
 

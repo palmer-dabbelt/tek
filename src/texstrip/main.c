@@ -93,11 +93,14 @@ int main(int argc, char **argv)
                  0)
             continue;
         else if (string_index(buf, "\\includegraphics") != -1) {
-            size_t index;
+            size_t index, iindex, oindex;;
 
             /* Removes all the optional agruments */
             index = string_index(buf, "\\includegraphics");
             index += strlen("\\includegraphics");
+            while ((buf[index] != '{') && (buf[index] != '\0'))
+                index++;
+            iindex = index + 1;
             while ((buf[index] != '}') && (buf[index] != '\0'))
                 index++;
 
@@ -106,13 +109,22 @@ int main(int argc, char **argv)
                 fprintf(stderr, "Bad includegraphics\n");
                 return 1;
             }
+            oindex = index;
 
             /* Appends ".pdf" to the filename */
-            if (fwrite(buf, 1, index, otf) != index)
-                abort();
-            fputs(".pdf", otf);
+       	    if (fwrite(buf, 1, iindex, otf) != iindex) {
+                fprintf(stderr, "iindex failed\n");
+	        abort();
+            }
+            fputs(subdir1, otf);
+            fputs(subdir2, otf);
+            if (fwrite(buf + iindex, 1, oindex - iindex, otf) != oindex - iindex) {
+                fprintf(stderr, "oindex - iindex failed\n");
+		abort();
+            }
+	    fputs(".pdf", otf);
             fputs(buf + index, otf);
-        } else if (string_index(buf, "\\input") != -1) {
+ } else if (string_index(buf, "\\input") != -1) {
             size_t iindex, index, oindex;
 
             /* Removes all the optional agruments */

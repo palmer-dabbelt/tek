@@ -306,10 +306,8 @@ void process(struct processor *p_uncast, const char *filename_input,
         if (string_index(buf, "\\includegraphics") != -1) {
             int index;
             char *included_name;
-            char *full_path;
-            int full_path_size;
             char *pdf_path;
-            int pdf_path_size;
+	    char *basename;
 
             /* Checks for comments */
             index = string_index(buf, "\\includegraphics");
@@ -343,29 +341,14 @@ void process(struct processor *p_uncast, const char *filename_input,
             buf[index] = '\0';
 
             /* Creates the full path */
-            full_path_size =
-                strlen(included_name) + basename_len(filename) + 3;
-            full_path = talloc_array(c, char, full_path_size);
-            full_path[0] = '\0';
-            if (basename_len(filename) != 0) {
-                strncat(full_path, filename, basename_len(filename));
-                strcat(full_path, "/");
-            }
-            strcat(full_path, included_name);
-
-            /* We need to convert to PDF so latex will input the file */
-            pdf_path_size = strlen(cache_dir) + strlen(included_name) + 10;
-            pdf_path = talloc_array(c, char, pdf_path_size);
-            pdf_path[0] = '\0';
-            strcat(pdf_path, cache_dir);
-            strcat(pdf_path, "/");
-            strcat(pdf_path, included_name);
-            strcat(pdf_path, ".pdf");
+	    fprintf(stderr, "included_name: %s\n", included_name);
+	    basename = talloc_strdup(c, filename);
+	    basename[basename_len(filename)] = '\0';
+	    pdf_path = talloc_asprintf(c, ".tek_cache/%s/%s.pdf", basename, included_name);
             makefile_add_dep(m, pdf_path);
 
             /* The path to the input file should be processed */
             stack_push(s, pdf_path);
-            talloc_unlink(full_path, c);
         }
 
         if (string_index(buf, "\\bibliography{") != -1) {
