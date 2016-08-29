@@ -131,6 +131,7 @@ void process(struct processor *p_uncast, const char *filename_input,
     bool has_index;
     bool has_fmtcount;
     char *texputs;
+    bool has_glossary;
 
     phonydeps = NULL;
 
@@ -144,6 +145,7 @@ void process(struct processor *p_uncast, const char *filename_input,
     biblio = NULL;
     has_index = false;
     has_fmtcount = false;
+    has_glossary = false;
 
     /* FIXME: This is probably wrong... */
     filename = talloc_strdup(c, filename_input);
@@ -410,6 +412,9 @@ void process(struct processor *p_uncast, const char *filename_input,
         if (string_index(buf, "\\Numberstringnum{") != -1)
             has_fmtcount = true;
 
+	if (string_index(buf, "\\makeglossaries") != -1)
+	    has_glossary = true;
+
         if (string_index(buf, "\\documentclass{") != -1) {
             char *cls_name;
             char *cls_file, *sty_file;
@@ -487,6 +492,21 @@ void process(struct processor *p_uncast, const char *filename_input,
             makefile_add_cmd(m,
                              "cd \"%s\" ; "
                              "makeindex `basename \"%s\" .tex`.idx ",
+                             cache_dir, restname(pp_file));
+        }
+
+        if (has_glossary == true) {
+            makefile_add_cmd(m,
+                             "cd \"%s\" ; "
+                             "TEXINPUTS=\"%s\" pdflatex -interaction=batchmode \"%s\" "
+                             ">& /dev/null"
+                             " || TEXINPUTS=\"%s\" pdflatex \"%s\"",
+                             cache_dir,
+                             texputs, restname(pp_file),
+                             texputs, restname(pp_file));
+            makefile_add_cmd(m,
+                             "cd \"%s\" ; "
+                             "makeglossaries `basename \"%s\" .tex`.glo ",
                              cache_dir, restname(pp_file));
         }
 
