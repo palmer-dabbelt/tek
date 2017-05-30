@@ -15,6 +15,7 @@ addons:
       - gcc-6
       - g++-6
       - texlive
+      - texlive-extra-utils
 
 matrix:
   include:
@@ -50,5 +51,5 @@ before_install:
 script:
   - pconfigure --verbose
   - make
-  - make check
+  - PATH="$(pwd)/bin:$PATH" make check
   - ptest --verbose
