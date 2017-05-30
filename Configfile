@@ -28,6 +28,7 @@ TESTSRC     += local-cls.bash
 TESTSRC     += lulu-subchapter.bash
 TESTSRC     += lulu-pdfcrop-in-subchapter.bash
 TESTSRC     += image.bash
+TESTSRC     += palmer-master-thesis.bash
 
 BINARIES    += texpp
 SOURCES     += texpp/main.c
