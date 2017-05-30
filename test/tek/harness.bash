@@ -4,4 +4,4 @@ $PTEST_BINARY $TEKARGS
 
 cat Makefile
 
-echo "" | make -j1
+echo "" | make

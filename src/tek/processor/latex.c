@@ -341,12 +341,16 @@ void process(struct processor *p_uncast, const char *filename_input,
             while ((buf[index] != '}') && (buf[index] != '\0'))
                 index++;
             buf[index] = '\0';
+	    fprintf(stderr, "included_name: '%s'\n", included_name);
 
             /* Creates the full path */
 	    fprintf(stderr, "included_name: %s\n", included_name);
 	    basename = talloc_strdup(c, filename);
 	    basename[basename_len(filename)] = '\0';
-	    pdf_path = talloc_asprintf(c, ".tek_cache/%s/%s.pdf", basename, included_name);
+	    if (strlen(basename) != 0)
+	    	strncat(basename, "/", strlen(filename));
+	    fprintf(stderr, "basename: '%s'\n", basename);
+	    pdf_path = talloc_asprintf(c, ".tek_cache/%s%s.pdf", basename, included_name);
             makefile_add_dep(m, pdf_path);
 
             /* The path to the input file should be processed */

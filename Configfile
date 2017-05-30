@@ -27,6 +27,7 @@ TESTSRC     += includegraphics-in-comment.bash
 TESTSRC     += local-cls.bash
 TESTSRC     += lulu-subchapter.bash
 TESTSRC     += lulu-pdfcrop-in-subchapter.bash
+TESTSRC     += image.bash
 
 BINARIES    += texpp
 SOURCES     += texpp/main.c
