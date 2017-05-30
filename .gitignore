@@ -8,3 +8,4 @@ Configfile-c
 Configfile-c.local
 ./pconfigure
 check/
+*.swp
