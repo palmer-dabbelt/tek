@@ -1,6 +1,6 @@
 #include "tempdir.bash"
 
-TEKARGS="main.tek"
+TEKARGS="main.tex"
 
 cat >main.tex <<"EOF"
 \documentclass{article}
